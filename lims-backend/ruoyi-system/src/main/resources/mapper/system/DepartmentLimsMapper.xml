@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DepartmentLimsMapper">
+
+
+    <select id="selectDepartment" resultType="com.ruoyi.common.core.domain.entity.DepartmentDto">
+        SELECT id, name, father_id
+        FROM department_lims
+    </select>
+
+    <select id="selectSonById" resultType="java.lang.Integer">
+        SELECT au.id
+        FROM (SELECT * FROM department_lims WHERE father_id IS NOT NULL) au,
+             (SELECT @father_id := #{id}) pd
+        WHERE FIND_IN_SET(father_id, @father_id) > 0
+                  AND @father_id := concat(@father_id, ',', id)
+        UNION
+        SELECT id
+        FROM department_lims
+        WHERE id = #{id}
+        ORDER BY id
+    </select>
+</mapper>

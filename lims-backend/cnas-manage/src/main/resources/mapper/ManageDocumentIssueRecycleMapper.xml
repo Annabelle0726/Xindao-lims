@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageDocumentIssueRecycleMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageDocumentIssueRecycle">
+        <id column="id" property="id"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="name" property="name"/>
+        <result column="version" property="version"/>
+        <result column="state" property="state"/>
+        <result column="document_state" property="documentState"/>
+        <result column="issue_code" property="issueCode"/>
+        <result column="issue_user" property="issueUser"/>
+        <result column="issue_date" property="issueDate"/>
+        <result column="issue_note" property="issueNote"/>
+        <result column="receive_user" property="receiveUser"/>
+        <result column="receive_date" property="receiveDate"/>
+        <result column="recycle_code" property="recycleCode"/>
+        <result column="recycle_user" property="recycleUser"/>
+        <result column="recycle_date" property="recycleDate"/>
+        <result column="recycle_note" property="recycleNote"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="url" property="url"/>
+    </resultMap>
+
+    <select id="pageManageDocumentIssueRecycle" resultType="com.ruoyi.manage.dto.ManageDocumentIssueRecycleDto">
+        select * from (select cmdir.*,
+        u1.name issueUserName,
+        u2.name recycleUserName,
+        u3.name receiveUserName
+        from cnas_manage_document_issue_recycle cmdir
+        left join user u1 on issue_user=u1.id
+        left join user u2 on recycle_user=u2.id
+        left join user u3 on receive_user=u3.id) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getManageDocumentIssueRecycle" resultType="com.ruoyi.manage.dto.ManageDocumentIssueRecycleDto">
+        select cmdir.*,
+               u1.name issueUserName,
+               u2.name recycleUserName,
+               u3.name receiveUserNmae
+        from cnas_manage_document_issue_recycle cmdir
+                 left join user u1 on issue_user=u1.id
+                 left join user u2 on recycle_user=u2.id
+                 left join user u3 on receive_user=u3.id
+        where cmdir.id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.ProcessMethodVerifyCalibrationsFileMapper">
+    <select id="selectCalibrationsFileList"
+            resultType="com.ruoyi.process.dto.ProcessMethodVerifyCalibrationsFileDto">
+        select cf.*,
+               d.device_name,
+               d.management_number
+        from cnas_process_method_verify_calibrations_file cf
+                 left join device d on d.id = cf.device_id
+        where cf.method_verify_id = #{methodVerifyId}
+    </select>
+
+    <!-- 设备证书查询校准证书 -->
+    <select id="selectCalibrationsFile" resultType="java.lang.String">
+        select system_file_name
+        from device_metric_record
+        where device_id = #{deviceId}
+          and type = 'calibrate'
+          and status = '0yes'
+        order by create_time desc
+        limit 1
+    </select>
+</mapper>

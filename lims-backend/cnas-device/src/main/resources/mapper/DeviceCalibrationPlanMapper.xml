@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceCalibrationPlanMapper">
+
+    <!-- 设备校准计划列表 -->
+    <select id="pageDeviceCalibrationPlan" resultType="com.ruoyi.device.dto.DeviceCalibrationPlanDto">
+        select *
+        from (select cqm.*,
+        u1.name write_name,
+        u3.name ratify_name
+        from device_calibration_plan cqm
+        left join user u1 on u1.id = cqm.write_user_id
+        left join user u3 on u3.id = cqm.ratify_user_id
+        order by cqm.create_time desc) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

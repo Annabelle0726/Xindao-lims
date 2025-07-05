@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceStateMapper">
+
+
+    <select id="getDeviceStatePage" resultType="com.ruoyi.device.dto.DeviceStateDto">
+        select ds.*,
+               d.device_name,
+               d.management_number,
+               d.specification_model,
+               d.large_category
+        from device_state ds
+                 left join device d on d.id = ds.device_id
+        where ds.device_id = #{deviceId}
+        <if test="processNumber != '' and processNumber != null">
+            and ds.process_number like concat('%', #{processNumber}, '%')
+        </if>
+    </select>
+</mapper>

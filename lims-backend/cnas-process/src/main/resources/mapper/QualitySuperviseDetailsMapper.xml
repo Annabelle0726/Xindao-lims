@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.QualitySuperviseDetailsMapper">
+
+    <!-- 质量监督计划详情列表 -->
+    <select id="pageQualitySuperviseDetail" resultType="com.ruoyi.process.dto.QualitySuperviseDetailsDto">
+        select *
+        from (select cd.*,
+        cr.is_according,
+        ca.is_correct,
+        cc.supervise_details_correct_id,
+        case
+        when cr.is_finish = 1 then 3
+        when cr.is_finish = 0 then 2
+        when cr.supervise_details_record_id is not null then 1
+        else 0
+        end record_status,
+        case
+        when ca.is_finish = 1 then 3
+        when ca.is_finish = 0 then 2
+        when ca.supervise_details_according_id is not null then 1
+        else 0
+        end according_status,
+        case
+        when cc.is_finish = 1 then 3
+        when cc.is_finish = 0 then 2
+        when cc.supervise_details_correct_id is not null then 1
+        else 0
+        end correct_status
+        from cnas_quality_supervise_details cd
+        left join cnas_quality_supervise_details_record cr
+        on cr.supervise_details_id = cd.supervise_details_id
+        left join cnas_quality_supervise_details_according ca
+        on ca.supervise_details_id = cd.supervise_details_id
+        left join cnas_quality_supervise_details_correct cc
+        on cc.supervise_details_id = cd.supervise_details_id
+        where 1=1
+        <choose>
+            <when test="causeType != null and causeType == 1">
+                and cd.supervise_reason not like '%动态%'
+            </when>
+            <when test="causeType != null and causeType == 2">
+                and cd.supervise_reason like '%动态%'
+            </when>
+            <otherwise>
+                and cd.supervise_reason not like '%动态%'
+            </otherwise>
+        </choose>
+              order by STR_TO_DATE(CONCAT(cd.supervise_time, '.01'), '%Y.%m.%d')) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

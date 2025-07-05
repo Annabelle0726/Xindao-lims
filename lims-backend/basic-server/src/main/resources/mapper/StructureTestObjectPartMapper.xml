@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.basic.mapper.StructureTestObjectPartMapper">
+    <select id="selectListByTestObjectId" resultType="com.ruoyi.basic.pojo.StructureTestObjectPart">
+        SELECT * from structure_test_object_part pp
+        where  pp.test_object_id = #{testObjectId}
+    </select>
+</mapper>

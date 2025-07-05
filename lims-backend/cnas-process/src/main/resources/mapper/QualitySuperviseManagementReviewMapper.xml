@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.QualitySuperviseManagementReviewMapper">
+
+
+    <select id="pageManagementReview" resultType="com.ruoyi.process.pojo.QualitySuperviseManagementReview">
+        select *
+        from cnas_quality_supervise_management_review
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.InformationNotificationMapper">
+
+    <select id="getPage" resultType="com.ruoyi.common.core.domain.entity.InformationNotificationDto">
+        select i.*, u.name senderUser, u2.name consigneeUser
+        from information_notification i
+                 left join user u on i.sender_id = u.id
+                 left join user u2 on u2.id = i.consignee_id
+        where i.consignee_id = #{userId}
+        <if test="messageType != '' and messageType != null">
+            and i.message_type = #{messageType}
+        </if>
+        order by i.create_time desc
+    </select>
+
+    <select id="msgRoll" resultType="com.ruoyi.common.core.domain.entity.InformationNotificationDto">
+        select i.*, u.name senderUser, u2.name consigneeUser
+        from information_notification i
+        left join user u on i.sender_id = u.id
+        left join user u2 on u2.id = i.consignee_id
+        where i.consignee_id = #{userId}
+        and i.view_status = false
+        order by i.create_time desc
+    </select>
+
+</mapper>

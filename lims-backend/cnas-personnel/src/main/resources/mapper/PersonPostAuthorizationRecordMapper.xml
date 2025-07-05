@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.personnel.mapper.PersonPostAuthorizationRecordMapper">
+
+
+    <select id="personPostAuthorizationRecordPage" resultType="com.ruoyi.personnel.dto.PersonPostAuthorizationRecordDto">
+        select cppar.*, us.name create_user_name, u.account account, u.name user_name
+        from cnas_person_post_authorization_record cppar
+        left join user u on cppar.user_id = u.id
+        left join user us on cppar.create_user = us.id
+        <where>
+            <if test="userId != null and userId != ''">
+                and cppar.user_id = #{userId}
+            </if>
+            <if test="departLimsId != null and departLimsId != ''">
+                and FIND_IN_SET(#{departLimsId},u.depart_lims_id)
+            </if>
+            <if test="userName != null and userName != ''">
+                and u.name like concat('%', #{userName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

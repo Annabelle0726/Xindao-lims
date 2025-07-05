@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.ProcessReportMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.process.pojo.ProcessReport">
+        <id column="id" property="id"/>
+        <result column="ins_report_code" property="insReportCode"/>
+        <result column="pages" property="pages"/>
+        <result column="number" property="number"/>
+        <result column="send" property="send"/>
+        <result column="method" property="method"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="send_user" property="sendUser"/>
+        <result column="signatory" property="signatory"/>
+        <result column="remark" property="remark"/>
+        <result column="create_user" property="createUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    <select id="pageProcessReport" resultType="com.ruoyi.process.dto.ProcessReportDto">
+        select * from (select cpr.* ,
+        u1.name sendUserName
+        from cnas_process_report cpr
+        left join user u1 on send_user=u1.id )A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="exportProcessReport" resultType="com.ruoyi.process.dto.ProcessReportDto">
+        select ROW_NUMBER() OVER (ORDER BY cpr.id) AS indexs,
+        cpr.* ,
+        u1.signature_url sendUserUrl
+        from cnas_process_report cpr
+        left join user u1 on send_user=u1.id
+    </select>
+</mapper>

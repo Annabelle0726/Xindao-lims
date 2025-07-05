@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceMaintenancePlanMapper">
+
+    <!-- 根据设备id查询设备的保养计划 -->
+    <select id="selectDeviceParameterPage" resultType="com.ruoyi.device.pojo.DeviceMaintenancePlan">
+        select
+            *
+        from device_maintenance_plan
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectMaintenancePlanById" resultType="com.ruoyi.device.dto.DeviceMaintenancePlanDto">
+        select
+            dmp.*,
+            date_format(dmp.date_preparation, '%Y-%m-%d') as datePreparationStr,
+            date_format(dmp.audit_date, '%Y-%m-%d') as auditDateStr
+        from device_maintenance_plan dmp
+        where dmp.maintenance_plan_id = #{maintenancePlanId}
+    </select>
+
+</mapper>

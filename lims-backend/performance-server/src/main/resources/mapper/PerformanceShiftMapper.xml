@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.PerformanceShiftMapper">
+
+    <resultMap id="performanceShiftPageMap" type="com.ruoyi.performance.dto.PerformanceShiftMapDto">
+        <result column="name" property="name"/>
+        <result column="shift_time" property="shiftTime"/>
+        <result column="user_id" property="userId" />
+        <result column="department" property="department" />
+    </resultMap>
+
+    <select id="performanceShiftPage" resultMap="performanceShiftPageMap">
+        SELECT
+        u2.name name,
+        GROUP_CONCAT(s.work_time, '：', s.shift, '：', s.id order by s.work_time SEPARATOR ';') AS shift_time, u2.id user_id
+        FROM performance_shift s
+        LEFT JOIN (SELECT distinct u.* from
+        user u
+        left join department_lims dl on FIND_IN_SET(dl.id,u.depart_lims_id)
+        where status = '0'
+        and del_flag = '0'
+        <if test="laboratory != null and laboratory != ''">
+          and   dl.name=#{laboratory}
+        </if>
+         ) u2    on u2.id = s.user_id
+        <where>
+            name is not null
+            <if test="time != null and time != ''">
+                and DATE_FORMAT(s.work_time, '%Y-%m') = DATE_FORMAT(#{time}, '%Y-%m' )
+            </if>
+            <if test="userName != null and userName != ''">
+                and u2.name like concat('%', #{userName}, '%')
+            </if>
+        </where>
+        GROUP BY u2.id
+        order by s.create_time
+    </select>
+
+    <select id="performanceShiftYearPage" resultType="map">
+        SELECT
+        s.user_id, s.shift
+        FROM performance_shift s
+        LEFT JOIN (SELECT u.* from
+        user u
+        left join department_lims dl on FIND_IN_SET(dl.id,u.depart_lims_id)
+        where status = '0'
+        and del_flag = '0'
+        <if test="laboratory != null and laboratory != ''">
+            and   dl.name=#{laboratory}
+        </if>
+        ) u2   on u2.id = s.user_id
+        where s.shift is not NULL
+        and s.shift != ''
+        and name is not null
+        <if test="time != null and time != ''">
+            and DATE_FORMAT(s.work_time, '%Y') = DATE_FORMAT(#{time}, '%Y' )
+        </if>
+        <if test="userName != null and userName != ''">
+            and u2.name like concat('%', #{userName}, '%')
+        </if>
+        order by s.create_time
+    </select>
+
+    <select id="performanceShiftYear" resultType="java.util.Map">
+        SELECT
+        u2.name name,
+        s.user_id, u2.account,
+        DATE_FORMAT(s.work_time, '%c') work_time,
+        GROUP_CONCAT(DATE_FORMAT(s.work_time, '%c'), '：', s.shift order by s.work_time SEPARATOR ';') month_str
+        FROM performance_shift s
+        LEFT JOIN (SELECT u.* from
+        user u
+        left join department_lims dl on FIND_IN_SET(dl.id,u.depart_lims_id)
+        where status = '0'
+        and del_flag = '0'
+        <if test="laboratory != null and laboratory != ''">
+            and   dl.name=#{laboratory}
+        </if>
+        ) u2   on u2.id = s.user_id
+        where s.shift is not NULL
+        and s.shift != ''
+        and name is not null
+        <if test="time != null and time != ''">
+            and DATE_FORMAT(s.work_time, '%Y') = DATE_FORMAT(#{time}, '%Y' )
+        </if>
+        <if test="userName != null and userName != ''">
+            and u.name like concat('%', #{userName}, '%')
+        </if>
+        GROUP BY u2.id
+        order by s.create_time
+    </select>
+
+    <select id="performanceShiftYearList" resultType="map">
+        SELECT
+        u.name name,
+        s.user_id, u.account,
+        DATE_FORMAT(s.work_time, '%c') work_time,
+        GROUP_CONCAT(DATE_FORMAT(s.work_time, '%c'), '：', s.shift order by s.work_time SEPARATOR ';') month_str
+        FROM performance_shift s
+        LEFT JOIN user u on u.id = s.user_id
+        where s.shift is not NULL
+        and s.shift != ''
+        <if test="time != null and time != ''">
+            and DATE_FORMAT(s.work_time, '%Y') = DATE_FORMAT(#{time}, '%Y' )
+        </if>
+        <if test="userName != null and userName != ''">
+            and u.name like concat('%', #{userName}, '%')
+        </if>
+        <if test="laboratory != null and laboratory != ''">
+        </if>
+        GROUP BY u.id
+        order by s.create_time
+    </select>
+
+    <select id="performanceShiftList" resultMap="performanceShiftPageMap">
+        SELECT
+        u.name name,
+        GROUP_CONCAT(s.work_time, '：', s.shift, '：', s.id order by s.work_time SEPARATOR ';') AS shift_time, u.id user_id
+        FROM performance_shift s
+        LEFT JOIN user u on u.id = s.user_id
+        <where>
+            <if test="time != null and time != ''">
+                and DATE_FORMAT(s.work_time, '%Y-%m') = DATE_FORMAT(#{time}, '%Y-%m' )
+            </if>
+            <if test="userName != null and userName != ''">
+                and u.name like concat('%', #{userName}, '%')
+            </if>
+            <if test="laboratory != null and laboratory != ''">
+            </if>
+        </where>
+        GROUP BY u.id
+        order by s.create_time
+    </select>
+
+    <select id="seldepLimsId" resultType="java.lang.String">
+        select name
+        from department_lims
+        where id = #{depLimsId}
+    </select>
+</mapper>

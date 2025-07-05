@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceMapper">
+    <select id="selectDeviceParameter" resultType="com.ruoyi.device.pojo.Device">
+        select * from(
+        select id,
+        large_category,
+        date_production,
+        equipment_manager,
+        authorized_person,
+        device_name,
+        internal_code,
+        asset_code,
+        calibration_date,
+        scrap_time,
+        acceptance_records,
+        subclass,
+        factory_no,
+        acquisition_date,
+        accurate_measurement,
+        specification_model,
+        device_status,
+        storage_point,
+        activation_date,
+        latest_traceability,
+        down_time,
+        maintenance_records,
+        manufacturer,
+        detection_type,
+        _costs,
+        calibration_certicate,
+        create_user,
+        create_time,
+        update_user,
+        update_time,
+        status
+        from device
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectEquipmentOverview" resultType="com.ruoyi.device.pojo.Device">
+        select * from(
+        select id,
+        device_name,
+        specification_model,
+        device_status,
+        create_user,
+        status,
+        update_time
+        from device
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="authorizedPerson" resultType="com.ruoyi.device.pojo.Device">
+        select id,
+               authorized_person
+        from device
+    </select>
+    <select id="search" resultType="com.ruoyi.device.pojo.Device">
+        select *
+        from device
+        <where>
+            <if test="deviceName!=null and deviceName!=''">
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test="status!=null and status!=''">
+                and device_status = status
+            </if>
+            <if test="specificationModel!=null and specificationModel!= ''">
+                and specification_model = #{specificationModel}
+            </if>
+            <if test="largeCategory!=null">
+                and large_category = #{largeCategory}
+            </if>
+            <if test="largeCategory == 'null'">
+                and (large_category = '' or large_category is null)
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceImage" resultType="com.ruoyi.device.pojo.Device">
+        select (image_upload, create_user, create_time) values (#{image_upload}
+             , #{createUser}
+             , #{createTime})
+    </select>
+
+    <select id="selectDeviceParameterPage" resultType="com.ruoyi.device.dto.DeviceDto">
+        select * from(
+        SELECT
+        d.*,
+        cmr.calibration_date as last_calibration_date_two,
+        cmr.next_calibration_date as next_calibration_date_two,
+        GROUP_CONCAT(distinct inspection_item SEPARATOR ';') AS insProductItem,
+        u.name ,
+        l.laboratory_name
+        FROM
+        device d
+        LEFT JOIN `user` u ON u.id = d.equipment_manager
+        LEFT JOIN laboratory l ON l.id = d.subordinate_departments_id
+        LEFT JOIN device_metric_record cmr ON d.id = cmr.device_id
+        LEFT JOIN structure_item_parameter sip ON FIND_IN_SET(sip.id, d.ins_product_ids)
+        <where>
+            <if test="laboratoryNameIsNull != null and laboratoryNameIsNull == true">
+                l.laboratory_name is null
+            </if>
+            AND cmr.type = 'calibrate' or cmr.type is null or cmr.type = ''
+        </where>
+        GROUP BY
+        d.id,
+        u.name, l.laboratory_name
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getInspectionItemSubclass" resultType="map">
+        SELECT ip.inspection_item,
+               if(ip.inspection_item_subclass is not null and ip.inspection_item_subclass != '',
+                  ip.inspection_item_subclass, ip.inspection_item) inspection_item_subclass
+        FROM ins_product ip
+        where ip.ins_sample_id = #{id}
+    </select>
+    <resultMap id="treeDeviceDto" type="map">
+        <result property="label" column="laboratory_name"/>
+        <result property="value" column="value" />
+        <collection property="children" resultMap="storagePointMap" javaType="List"/>
+    </resultMap>
+
+    <resultMap id="storagePointMap" type="map">
+        <result property="value" column="value"/>
+        <result property="label" column="storage_point"/>
+        <collection property="children" resultMap="deviceNameMap" javaType="List"/>
+    </resultMap>
+
+    <resultMap id="deviceNameMap" type="map">
+        <result property="value" column="id"/>
+        <result property="label" column="device_name"/>
+        <result property="activationDate" column="activation_date"/>
+        <result property="managementNumber" column="management_number"/>
+    </resultMap>
+
+    <select id="treeDevice" resultMap="treeDeviceDto">
+        select
+        d.id,
+        case when l.laboratory_name is null || l.laboratory_name ='' then '其他' else l.laboratory_name end as laboratory_name,
+        case when d.storage_point is null || d.storage_point ='' then '其他' else d.storage_point end as storage_point,
+        d.device_name,
+        d.management_number,
+        null as value,
+        d.activation_date
+        from device d
+        LEFT JOIN laboratory l ON l.id = d.subordinate_departments_id
+        <where>
+            <if test="deviceName!=null and deviceName!=''">
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceByCode" resultType="com.ruoyi.device.dto.DeviceDto">
+        SELECT d.*,
+               GROUP_CONCAT(DISTINCT inspection_item SEPARATOR ';') AS ins_product_item,
+               l.laboratory_name,
+               u1.name                                                 equipmentManager_name,
+               u2.name                                                 authorized_person_name
+        FROM device d
+                 LEFT JOIN structure_item_parameter sip ON FIND_IN_SET(sip.id, d.ins_product_ids)
+                 LEFT JOIN laboratory l ON d.subordinate_departments_id = l.id
+                 LEFT JOIN user u1 ON u1.id = d.equipment_manager
+                 LEFT JOIN user u2 ON u2.id = d.authorized_person
+        WHERE d.id = #{id}
+
+        GROUP BY d.id,
+                 l.laboratory_name,
+                 u1.name,
+                 u2.name
+    </select>
+
+    <!-- 查询到达校准有效期的设备-提前5天 -->
+    <select id="selectOverdueDevice" resultType="com.ruoyi.device.pojo.Device">
+        SELECT *
+        FROM device
+        WHERE
+        -- 筛选出 activation_date 在当前日期前五天内的数据
+        activation_date BETWEEN now() AND now() + INTERVAL 5 DAY
+        -- 筛选出 activation_date 已经超过当前日期的数据
+        OR activation_date &lt; now()
+    </select>
+</mapper>

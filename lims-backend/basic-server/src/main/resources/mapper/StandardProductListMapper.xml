@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.StandardProductListMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.basic.pojo.StandardProductList">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="inspectionItem" column="inspection_item" jdbcType="VARCHAR"/>
+            <result property="inspectionItemSubclass" column="inspection_item_subclass" jdbcType="VARCHAR"/>
+            <result property="laboratory" column="laboratory" jdbcType="VARCHAR"/>
+            <result property="unit" column="unit" jdbcType="VARCHAR"/>
+            <result property="price" column="price" jdbcType="DECIMAL"/>
+            <result property="manHour" column="man_hour" jdbcType="INTEGER"/>
+            <result property="manHourGroup" column="man_hour_group" jdbcType="VARCHAR"/>
+            <result property="inspectionItemType" column="inspection_item_type" jdbcType="VARCHAR"/>
+            <result property="inspectionValueType" column="inspection_value_type" jdbcType="VARCHAR"/>
+            <result property="checkoutNumber" column="checkout_number" jdbcType="INTEGER"/>
+            <result property="section" column="section" jdbcType="VARCHAR"/>
+            <result property="method" column="method" jdbcType="VARCHAR"/>
+            <result property="manDay" column="man_day" jdbcType="INTEGER"/>
+            <result property="bsm" column="bsm" jdbcType="VARCHAR"/>
+            <result property="ask" column="ask" jdbcType="VARCHAR"/>
+            <result property="standardMethodListId" column="standard_method_list_id" jdbcType="INTEGER"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 批量添加检测标准 -->
+    <insert id="saveBatchProductLists">
+        INSERT INTO standard_product_list (id, inspection_item, inspection_item_en, inspection_item_subclass, inspection_item_subclass_en, factory, laboratory, sample_type, sample, model, son_laboratory, unit, price, man_hour, man_hour_group, inspection_item_type, inspection_value_type, checkout_number, section, cores, method, method_s, man_day, bsm, ask, tell, standard_method_list_id, template_id, state, dic, tree, structure_item_parameter_id, inspection_item_class, inspection_item_class_en, radius, radius_list, rates, sort, conductor_material, conductor_type)
+        VALUES
+        <foreach item="item" collection="productLists" open="(" separator="),(" close=")">
+            #{item.id}, #{item.inspectionItem}, #{item.inspectionItemEn}, #{item.inspectionItemSubclass}, #{item.inspectionItemSubclassEn}, #{item.factory}, #{item.laboratory}, #{item.sampleType}, #{item.sample}, #{item.model}, #{item.sonLaboratory}, #{item.unit}, #{item.price}, #{item.manHour}, #{item.manHourGroup}, #{item.inspectionItemType}, #{item.inspectionValueType}, #{item.checkoutNumber}, #{item.section}, #{item.cores}, #{item.method}, #{item.methodS}, #{item.manDay}, #{item.bsm}, #{item.ask}, #{item.tell}, #{item.standardMethodListId}, #{item.templateId}, #{item.state}, #{item.dic}, #{item.tree}, #{item.structureItemParameterId},
+            #{item.inspectionItemClass}, #{item.inspectionItemClassEn}, #{item.radius}, #{item.radiusList}, #{item.rates}, #{item.sort}, #{item.conductorMaterial}, #{item.conductorType}
+        </foreach>
+
+    </insert>
+
+
+    <update id="updateSection">
+        UPDATE standard_product_list
+        SET price=#{productList.price},
+            man_hour=#{productList.manHour},
+            section=#{productList.section},
+            cores=#{productList.cores},
+            conductor_material=#{productList.conductorMaterial},
+            conductor_type=#{productList.conductorType},
+            ask=#{productList.ask},
+            tell=#{productList.tell},
+            update_user=#{productList.updateUser},
+            update_time=#{productList.updateTime}
+        WHERE id = #{productList.id}
+    </update>
+    <update id="updateSortUp">
+        update standard_product_list
+        set sort = sort - 1
+        where tree = #{tree}
+          and standard_method_list_id = #{methodId}
+          and sort between #{beginIndex} + 1 and #{endIndex}
+    </update>
+    <update id="updateSortDown">
+        update standard_product_list
+        set sort = sort + 1
+        where tree = #{tree}
+          and standard_method_list_id = #{methodId}
+          and sort between #{endIndex} and #{beginIndex} - 1
+    </update>
+    <select id="standardProductListIPage" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select spl.* from standard_product_list spl
+        left join product p on spl.sample = p.name
+        where standard_method_list_id = #{id}
+        and tree like concat('%',#{tree},'%')
+        <if test="laboratory != ''">
+            and son_laboratory = #{laboratory}
+        </if>
+        <if test="insItem != ''">
+            and inspection_item = #{insItem}
+        </if>
+        <if test="insItems != ''">
+            and inspection_item_subclass = #{insItems}
+        </if>
+        order by p.id
+        group by spl.id
+    </select>
+    <select id="getOne" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select * from standard_product_list
+        where standard_method_list_id = #{standardMethodListId}
+        and inspection_item = #{inspectionItem}
+        <if test="sample!=null">
+            and sample = #{sample}
+        </if>
+        <if test="inspectionItemSubclass!=null">
+            and inspection_item_subclass = #{inspectionItemSubclass}
+        </if>
+        <if test="inspectionItemSubclass == null">
+            and (inspection_item_subclass is null or inspection_item_subclass = '')
+        </if>
+        <if test="model!=null">
+            and model = #{model}
+        </if>
+        <if test="inspectionItemClass != null and inspectionItemClass != ''">
+            and inspection_item_class = #{inspectionItemClass}
+        </if>
+    </select>
+    <select id="selectDetail" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select * from standard_product_list
+        where standard_method_list_id = #{standardMethodListId}
+        and state =#{state}
+        and model=#{model}
+        <if test="isCableTag != null and isCableTag != ''">
+            and (inspection_item_class like concat('%结构尺寸%') or
+            inspection_item_class like concat('%电缆电性能%')or
+            inspection_item_class like concat('%绝缘%')or
+            inspection_item_class like concat('%电缆燃烧性能%'))
+        </if>
+        order by sort asc,
+            case when man_hour_group is NULL then 1
+                      when man_hour_group ='' then 1  else 0 end,
+                 CASE
+                     WHEN man_hour_group REGEXP '^[0-9]' THEN CAST(man_hour_group AS UNSIGNED) -- 如果以数字开头，则按照数字大小排序
+                     WHEN man_hour_group REGEXP '[0-9]+' THEN CAST(SUBSTRING(man_hour_group, 2)AS UNSIGNED) END -- 提取字母后面的数字部分
+                ,id asc
+    </select>
+    <select id="selectDetail2" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select * from standard_product_list
+        where standard_method_list_id = #{standardMethodListId}
+          and state =#{state}
+          and tree =#{tree}
+        <if test="isCableTag != null and isCableTag != ''">
+            and (inspection_item_class like concat('%结构尺寸%') or
+            inspection_item_class like concat('%电缆电性能%')or
+            inspection_item_class like concat('%绝缘%')or
+            inspection_item_class like concat('%电缆燃烧性能%'))
+        </if>
+        order by sort asc,
+            case when man_hour_group is NULL then 1
+                      when man_hour_group ='' then 1  else 0 end,
+                 CASE
+                     WHEN man_hour_group REGEXP '^[0-9]' THEN CAST(man_hour_group AS UNSIGNED) -- 如果以数字开头，则按照数字大小排序
+                     WHEN man_hour_group REGEXP '[0-9]+' THEN CAST(SUBSTRING(man_hour_group, 2)AS UNSIGNED) END -- 提取字母后面的数字部分
+                ,id asc
+    </select>
+    <select id="selectPartColor" resultType="java.util.Map">
+        select color,
+               color_code
+        from product_part
+        where part_no = #{partNo}
+        union all
+        select color,
+               color_code
+        from structure_test_object_part
+        where part_no = #{partNo}
+    </select>
+</mapper>

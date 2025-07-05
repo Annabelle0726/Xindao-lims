@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.basic.pojo.Product">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="nameEn" column="name_en" jdbcType="VARCHAR"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="objectId" column="object_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,name_en,
+        create_user,update_user,create_time,
+        update_time,object_id
+    </sql>
+    <select id="selectProductListByObjectId" resultType="com.ruoyi.basic.pojo.Product">
+        select * from (
+        select p.id,
+               p.name,
+               p.name_en,
+               p.create_user,
+               p.update_user,
+               p.create_time,
+               p.update_time,
+               p.object_id
+        from product p
+        WHERE 1=1
+            <if test="partNo != null and partNo != ''">
+                and p.id = (select pp.product_id
+                from product_part pp
+                where pp.part_no = #{partNo})
+            </if>) a
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ew.customSqlSegment}
+            </if>
+    </select>
+</mapper>

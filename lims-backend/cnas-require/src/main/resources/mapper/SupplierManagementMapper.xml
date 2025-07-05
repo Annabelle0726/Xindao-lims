@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.SupplierManagementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.SupplierManagement">
+        <id column="supplier_management_id" property="supplierManagementId" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="supplier_ref" property="supplierRef" />
+        <result column="supplier_item_service_name" property="supplierItemServiceName" />
+        <result column="postal_code" property="postalCode" />
+        <result column="adress" property="adress" />
+        <result column="logo" property="logo" />
+        <result column="contacts" property="contacts" />
+        <result column="phone" property="phone" />
+        <result column="household_name" property="householdName" />
+        <result column="fax" property="fax" />
+        <result column="opening_name" property="openingName" />
+        <result column="website" property="website" />
+        <result column="account_name" property="accountName" />
+        <result column="email" property="email" />
+        <result column="remarks" property="remarks" />
+        <result column="enclosure" property="enclosure" />
+        <result column="create_time" property="createTime" />
+        <result column="create_user" property="createUser" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="status" property="status" />
+        <result column="parent_id" property="parentId" />
+    </resultMap>
+    <select id="pageSupplierManagement" resultType="com.ruoyi.require.pojo.SupplierManagement">
+        select *
+        from (select *
+        from cnas_supplier_management
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="selectQualifiedSupplierManagement" resultType="com.ruoyi.require.pojo.SupplierManagement">
+        select *
+        from (select *
+        from cnas_supplier_management
+        where status = 0
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectSupplierManagementAll" resultType="com.ruoyi.require.pojo.SupplierManagement">
+        SELECT
+            csm.supplier_name,
+            csm.supplier_ref,
+            csm.supplier_item_service_name,
+            csm.postal_code,
+            csm.adress,
+            csm.contacts,
+            csm.phone,
+            csm.household_name,
+            csm.fax,
+            csm.opening_name,
+            csm.website,
+            csm.account_name,
+            csm.email
+        FROM
+	        cnas_supplier_management csm
+        where csm.parent_id in (select id from procurement_supplies_contents where id = #{parentId} or parent_id = #{parentId})
+    </select>
+    <select id="selectSupplierManagement" resultType="com.ruoyi.require.pojo.SupplierManagement">
+        select
+            *
+        from cnas_supplier_management csm
+        where
+            csm.parent_id = #{parentId} or
+            csm.parent_id in
+        (select id from procurement_supplies_contents where id = #{parentId} or parent_id = #{parentId})
+    </select>
+</mapper>

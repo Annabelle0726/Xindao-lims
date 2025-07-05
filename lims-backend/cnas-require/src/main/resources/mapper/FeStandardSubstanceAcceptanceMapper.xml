@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeStandardSubstanceAcceptanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.FeStandardSubstanceAcceptance">
+        <id column="id" property="id" />
+        <result column="substance_id" property="substanceId" />
+        <result column="arrive_date" property="arriveDate" />
+        <result column="maintenance_unit" property="maintenanceUnit" />
+        <result column="perameters" property="perameters" />
+        <result column="installation" property="installation" />
+        <result column="situation" property="situation" />
+        <result column="signature" property="signature" />
+        <result column="producer" property="producer" />
+        <result column="recipient" property="recipient" />
+        <result column="file" property="file" />
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <select id="getPageAcceptance" resultType="com.ruoyi.require.vo.AcceptanceVo">
+        SELECT
+            sa.id,
+            ss.name,
+            ss.model,
+            ss.factory_manufacturer,
+            ss.factory_num,
+            ss.manage_num,
+            ss.uncertainty,
+            ss.quantity,
+            ss.acquisition_date,
+            ss.effective_date,
+            ss.file_num,
+            ss.position
+        FROM cnas_fe_standard_substance_acceptance sa
+                 LEFT JOIN cnas_fe_standard_substance ss on ss.id = sa.substance_id
+        <where>
+            <if test="name != null and name != ''">
+                ss.name like CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

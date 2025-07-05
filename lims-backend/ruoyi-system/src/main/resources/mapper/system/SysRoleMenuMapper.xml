@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysRoleMenuMapper">
+
+	<resultMap type="SysRoleMenu" id="SysRoleMenuResult">
+		<result property="roleId"     column="role_id"      />
+		<result property="menuId"     column="menu_id"      />
+	</resultMap>
+
+	<select id="checkMenuExistRole" resultType="Integer">
+	    select count(1) from sys_role_menu where menu_id = #{menuId}
+	</select>
+
+	<!-- 根据权限标识和用户id查询权限 -->
+    <select id="selectRoleMenu" resultType="com.ruoyi.system.domain.vo.SysRoleVo">
+		select sm.perms,
+			   sm.menu_name,
+			   srm.is_rersonal
+		from sys_role_menu srm
+				 left join sys_menu sm on sm.menu_id = srm.menu_id
+				 left join sys_user_role sur on srm.role_id = sur.role_id
+		where sm.perms = #{permsName}
+		  and sur.user_id = #{userId}
+		group by sm.menu_id
+	</select>
+
+	<!-- 查询只看我菜单id -->
+    <select id="selectIsRersonalMenu" resultType="java.lang.Long">
+		select menu_id
+		from sys_role_menu
+		where role_id = #{roleId}
+		and is_rersonal = 1
+	</select>
+
+    <delete id="deleteRoleMenuByRoleId" parameterType="Long">
+		delete from sys_role_menu where role_id=#{roleId}
+	</delete>
+
+	<delete id="deleteRoleMenu" parameterType="Long">
+ 		delete from sys_role_menu where role_id in
+ 		<foreach collection="array" item="roleId" open="(" separator="," close=")">
+ 			#{roleId}
+        </foreach>
+ 	</delete>
+
+	<insert id="batchRoleMenu">
+		insert into sys_role_menu(role_id, menu_id, is_rersonal) values
+		<foreach item="item" index="index" collection="list" separator=",">
+			(#{item.roleId},#{item.menuId},#{item.isRersonal})
+		</foreach>
+	</insert>
+
+</mapper>

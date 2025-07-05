@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceScrappedMapper">
+
+    <!-- 设备报废申请列表 -->
+    <select id="pageDeviceScrapped" resultType="com.ruoyi.device.pojo.DeviceScrapped">
+        select * from (
+        select *
+        from device_scrapped
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectDeviceScrappedById" resultType="com.ruoyi.device.dto.DeviceScrappedDto">
+        select
+            *,
+            date_format(applicant_date,'%Y年%m月%d日') as applicantDateStr,
+            date_format(department_head_date,'%Y年%m月%d日') as departmentHeadDateStr,
+            date_format(metering_room_date,'%Y年%m月%d日') as meteringRoomDateStr,
+            date_format(approver_date,'%Y年%m月%d日') as approverDateStr
+        from device_scrapped
+        where scrapped_id = #{scrappedId}
+    </select>
+
+</mapper>

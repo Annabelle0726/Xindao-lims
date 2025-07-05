@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsSampleMapper">
+
+    <resultMap id="sampleDto" type="com.ruoyi.inspect.dto.SampleProductDto">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="insResult" column="ins_result" jdbcType="INTEGER"/>
+        <result property="insOrderId" column="ins_order_id" jdbcType="INTEGER"/>
+        <result property="joinModel" column="join_model" jdbcType="VARCHAR"/>
+        <result property="joinName" column="join_name" jdbcType="VARCHAR"/>
+        <result property="sampleCode" column="sample_code" jdbcType="VARCHAR"/>
+        <result property="factory" column="factory" jdbcType="VARCHAR"/>
+        <result property="laboratory" column="laboratory" jdbcType="VARCHAR"/>
+        <result property="sampleType" column="sample_type" jdbcType="VARCHAR"/>
+        <result property="sample" column="sample" jdbcType="VARCHAR"/>
+        <result property="model" column="model" jdbcType="VARCHAR"/>
+        <result property="insState" column="ins_state" jdbcType="INTEGER"/>
+        <result property="joinNum" column="join_num" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+        <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="standardMethodListId" column="standard_method_list_id"/>
+        <result property="unit" column="unit"/>
+        <result property="quantity" column="quantity"/>
+        <result property="specialStandardMethod" column="special_standard_method"/>
+        <collection property="insProduct" resultMap="product"/>
+    </resultMap>
+
+    <resultMap id="product" type="com.ruoyi.inspect.pojo.InsProduct">
+        <id property="id" column="ip_id" jdbcType="INTEGER"/>
+        <result property="inspectionItem" column="inspection_item" jdbcType="VARCHAR"/>
+        <result property="inspectionItemEn" column="inspection_item_en" jdbcType="VARCHAR"/>
+        <result property="inspectionItemSubclass" column="inspection_item_subclass" jdbcType="VARCHAR"/>
+        <result property="inspectionItemSubclassEn" column="inspection_item_subclass_en" jdbcType="VARCHAR"/>
+        <result property="inspectionItemClass" column="inspection_item_class" jdbcType="VARCHAR"/>
+        <result property="inspectionItemClassEn" column="inspection_item_class_en" jdbcType="VARCHAR"/>
+        <result property="factory" column="ip_factory" jdbcType="VARCHAR"/>
+        <result property="laboratory" column="ip_laboratory" jdbcType="VARCHAR"/>
+        <result property="sampleType" column="ip_sample_type" jdbcType="VARCHAR"/>
+        <result property="sample" column="ip_sample" jdbcType="VARCHAR"/>
+        <result property="model" column="ip_model" jdbcType="VARCHAR"/>
+        <result property="sonLaboratory" column="son_laboratory" jdbcType="VARCHAR"/>
+        <result property="unit" column="ip_unit" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="DECIMAL"/>
+        <result property="manHour" column="man_hour" jdbcType="DOUBLE"/>
+        <result property="manHourGroup" column="man_hour_group" jdbcType="VARCHAR"/>
+        <result property="inspectionItemType" column="inspection_item_type" jdbcType="VARCHAR"/>
+        <result property="inspectionValueType" column="inspection_value_type" jdbcType="VARCHAR"/>
+        <result property="deviceGroup" column="device_group" jdbcType="VARCHAR"/>
+        <result property="checkoutNumber" column="checkout_number" jdbcType="INTEGER"/>
+        <result property="section" column="section" jdbcType="VARCHAR"/>
+        <result property="valueType" column="value_type" jdbcType="VARCHAR"/>
+        <result property="method" column="method" jdbcType="VARCHAR"/>
+        <result property="manDay" column="man_day" jdbcType="INTEGER"/>
+        <result property="bsm" column="bsm" jdbcType="VARCHAR"/>
+        <result property="ask" column="ask" jdbcType="VARCHAR"/>
+        <result property="tell" column="tell" jdbcType="VARCHAR"/>
+        <result property="lastValue" column="last_value" jdbcType="VARCHAR"/>
+        <result property="insResult" column="ip_ins_result" jdbcType="INTEGER"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="insBushId" column="ins_bush_id" jdbcType="INTEGER"/>
+        <result property="insSampleId" column="ins_sample_id" jdbcType="INTEGER"/>
+        <result property="createUser" column="ip_create_user" jdbcType="INTEGER"/>
+        <result property="updateUser" column="ip_update_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="ip_create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="ip_update_time" jdbcType="TIMESTAMP"/>
+        <result property="templateId" column="template_id" jdbcType="INTEGER"/>
+        <result property="methodS" column="method_s"/>
+        <result property="tell" column="tell"/>
+        <result property="dic" column="dic"/>
+        <result property="sort" column="sort"/>
+        <result property="temperature" column="temperature"/>
+        <result property="humidity" column="humidity"/>
+        <result property="radius" column="radius"/>
+        <result property="cableTag" column="cable_tag"/>
+        <result property="structureItemParameterId" column="structure_item_parameter_id"/>
+        <collection property="insProductResult" resultMap="insProductResult"/>
+    </resultMap>
+
+
+    <resultMap id="insProductResult" type="com.ruoyi.inspect.pojo.InsProductResult">
+        <result property="insValue" column="ins_value" jdbcType="VARCHAR"/>
+        <result property="comValue" column="com_value" jdbcType="VARCHAR"/>
+        <result property="equipValue" column="equip_value" jdbcType="VARCHAR"/>
+        <result property="equipName" column="equip_name" jdbcType="VARBINARY"/>
+    </resultMap>
+
+    <resultMap id="sampleVo" type="com.ruoyi.inspect.vo.SampleVo">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="insResult" column="ins_result" jdbcType="INTEGER"/>
+        <result property="insOrderId" column="ins_order_id" jdbcType="INTEGER"/>
+        <result property="joinModel" column="join_model" jdbcType="VARCHAR"/>
+        <result property="joinName" column="join_name" jdbcType="VARCHAR"/>
+        <result property="sampleCode" column="sample_code" jdbcType="VARCHAR"/>
+        <result property="factory" column="factory" jdbcType="VARCHAR"/>
+        <result property="laboratory" column="laboratory" jdbcType="VARCHAR"/>
+        <result property="sampleType" column="sample_type" jdbcType="VARCHAR"/>
+        <result property="sample" column="sample" jdbcType="VARCHAR"/>
+        <result property="model" column="model" jdbcType="VARCHAR"/>
+        <result property="insState" column="ins_state" jdbcType="INTEGER"/>
+        <result property="joinNum" column="join_num" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+        <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="standardMethodListId" column="standard_method_list_id"/>
+        <result property="methodName" column="methodName" jdbcType="VARCHAR"/>
+        <result property="unit" column="unit"/>
+    </resultMap>
+
+    <sql id="getInsProducSql">
+        ip.id          ip_id,
+               inspection_item,
+               inspection_item_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               inspection_item_subclass,
+               inspection_item_subclass_en,
+               ip.factory     ip_factory,
+               ip.laboratory  ip_laboratory,
+               ip.sample_type ip_sample_type,
+               ip.sample      ip_sample,
+               ip.model       ip_model,
+               son_laboratory,
+               ip.unit        ip_unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               device_group,
+               checkout_number,
+               section,
+               value_type,
+               method,
+               man_day,
+               bsm,
+               ask,
+               `last_value`,
+               ip.ins_result  ip_ins_result,
+               state,
+               ins_sample_id,
+               ip.create_user ip_create_user,
+               ip.update_user ip_update_user,
+               ip.create_time ip_create_time,
+               ip.update_time ip_update_time,
+               template_id,
+               ipr.ins_value,
+               ipr.com_value,
+               ipr.equip_value,
+               ipr.equip_name,
+               ip.method_s,
+               ip.tell,
+               ip.dic,
+               ip.sort,
+               ip.cable_tag,
+               ip.structure_item_parameter_id
+    </sql>
+
+
+    <select id="findInsSampleAndOrder" resultType="com.ruoyi.inspect.vo.InsOrderPlanVO">
+        select * from(select * from(
+        SELECT
+        a.*,ios.ins_state,ios.verify_tell,verify_user
+        FROM
+        (
+        SELECT
+        io.id,
+        io.entrust_code,
+        io.type,
+        io.appointed,
+        io.send_time,
+        io.order_type,
+        case when
+            io.type_source = 0
+            then io.sample_view
+            else io.sample end sample,
+        GROUP_CONCAT(DISTINCT isa.model SEPARATOR ' ') AS sample_model,
+        userName,
+        checkName,
+        ip.son_laboratory,
+        io.ins_time,
+        io.laboratory,
+        io.type_source,
+        io.ifs_inventory_id,
+        ira.id ins_report_id,
+        ira.url,
+        ira.url_s,
+        ira.temp_url_pdf,
+        iiq.is_copper
+        FROM
+        ins_order io
+        LEFT JOIN ins_sample isa ON isa.ins_order_id = io.id
+        LEFT JOIN ins_report ira ON ira.ins_order_id = io.id
+        LEFT JOIN ifs_inventory_quantity iiq ON iiq.id = io.ifs_inventory_id
+        LEFT JOIN (
+        SELECT ins_sample_id,GROUP_CONCAT( DISTINCT uu.name SEPARATOR ',') AS userName
+        FROM ins_sample_user u LEFT JOIN  user uu ON u.user_id = uu.id
+        WHERE u.state=0
+        <if test="sonLaboratory!= null and sonLaboratory != ''">
+           and son_laboratory=#{sonLaboratory}
+        </if>
+        GROUP BY ins_sample_id
+        ORDER BY ins_sample_id
+        ) isu ON isu.ins_sample_id = io.id
+        LEFT JOIN (
+        SELECT ins_sample_id,uu.name checkName
+        FROM ins_sample_user u LEFT JOIN  user uu ON u.user_id = uu.id
+        WHERE u.state=1
+        <if test="sonLaboratory!= null and sonLaboratory != ''">
+            and son_laboratory=#{sonLaboratory}
+        </if>
+        GROUP BY ins_sample_id
+        ORDER BY ins_sample_id
+        )isu2 ON isu2.ins_sample_id = io.id
+        LEFT JOIN ins_product ip ON ip.ins_sample_id = isa.id
+        WHERE io.state = 1 and send_time is not null
+        <if test="isCheck != null">
+            <if test="userName !=null and userName!=''">
+                and checkName like CONCAT ('%', #{userName},'%')
+            </if>
+        </if>
+        <if test="isCheck == null">
+            <if test="userName !=null and userName!=''">
+                and userName like CONCAT ('%', #{userName},'%')
+            </if>
+        </if>
+        <if test="sonLaboratory!= null and sonLaboratory != ''">
+            and ip.son_laboratory = #{sonLaboratory}
+        </if>
+        GROUP BY
+        ip.son_laboratory,
+        io.id
+        ) a
+        LEFT JOIN ins_order_state ios ON ios.ins_order_id = a.id AND ios.laboratory = a.son_laboratory
+        ORDER BY
+        a.type DESC,
+        a.id
+        ) b
+        where ins_state is not null
+        <if test="laboratory!=null and laboratory!=''">
+            and laboratory=#{laboratory}
+        </if>
+        )A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        ORDER BY send_time asc
+    </select>
+
+    <select id="inspectionOrderDetailsTaskSwitching" resultType="com.ruoyi.inspect.vo.InsOrderPlanTaskSwitchVo">
+        select * from(
+        SELECT
+        a.*,ios.ins_state,ios.verify_tell,isu2.order_user_id,<!--(ios.verify_user = #{userId})--> verify_user
+        FROM
+        (
+        SELECT
+        io.id,
+        io.entrust_code,
+        io.type,
+        io.appointed,
+        io.send_time,
+        group_concat(distinct isa.sample,' ') sampleType,
+        isu.user_id,
+        user.name userName,
+        ip.son_laboratory,
+        io.ins_time,
+        io.laboratory
+        FROM
+        ins_order io
+        LEFT JOIN ins_sample isa ON isa.ins_order_id = io.id
+        LEFT JOIN ( <!--SELECT * FROM ins_sample_user GROUP BY ins_sample_id, user_id -->
+        SELECT *
+        FROM ins_sample_user u
+        WHERE son_laboratory=#{sonLaboratory} and (ins_sample_id, id) IN (
+        SELECT ins_sample_id, MAX(id)
+        FROM ins_sample_user
+        WHERE son_laboratory=#{sonLaboratory}
+        GROUP BY ins_sample_id
+        )
+        ORDER BY ins_sample_id, id
+        ) isu ON isu.ins_sample_id = io.id
+        LEFT JOIN ins_product ip ON ip.ins_sample_id = isa.id
+        LEFT JOIN user ON isu.user_id = user.id
+        WHERE
+        io.state = 1
+--         # AND io.ins_state != 5
+        and send_time is not null
+        <if test="userId !=null and userId!=''">
+            and (isu.user_id = #{userId} OR isu.user_id is NULL )
+        </if>
+        OR isu.user_id is NULL
+        GROUP BY
+        ip.son_laboratory,
+        io.id
+        ) a
+        LEFT JOIN ins_order_state ios ON ios.ins_order_id = a.id AND ios.laboratory = a.son_laboratory
+        left join (SELECT td.user_id order_user_id, td.ins_sample_id FROM ins_sample_user td,(SELECT max(id) id FROM
+        ins_sample_user where son_laboratory=#{sonLaboratory} GROUP BY ins_sample_id) md where td.id = md.id
+        <if test="userId !=null and userId!=''">
+            and user_id = #{userId} OR user_id is NULL
+        </if>
+        OR user_id is NULL
+        ) isu2 on
+        isu2.ins_sample_id = a.id
+        where ins_state is not null
+        <if test="laboratory != null and laboratory != ''">
+            and a.laboratory=#{laboratory}
+        </if>
+        ORDER BY
+        <!--a.user_id DESC,-->
+        a.type DESC,
+        a.id
+        ) b
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="selectSampleProductListByOrderId" resultMap="sampleDto">
+        select isa.*,
+               ip.id          ip_id,
+               inspection_item,
+               inspection_item_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               inspection_item_subclass,
+               inspection_item_subclass_en,
+               ip.factory     ip_factory,
+               ip.laboratory  ip_laboratory,
+               ip.sample_type ip_sample_type,
+               ip.sample      ip_sample,
+               ip.model       ip_model,
+               son_laboratory,
+               ip.unit        ip_unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               device_group,
+               checkout_number,
+               section,
+               value_type,
+               method,
+               man_day,
+               bsm,
+               ask,
+               tell,
+               `last_value`,
+               ip.ins_result  ip_ins_result,
+               state,
+               ins_sample_id,
+               ip.create_user ip_create_user,
+               ip.update_user ip_update_user,
+               ip.create_time ip_create_time,
+               ip.update_time ip_update_time,
+               template_id,
+               ipr.ins_value,
+               ipr.com_value,
+               ipr.equip_value,
+               ip.method_s
+        from ins_sample isa
+                 left join ins_product ip on isa.id = ip.ins_sample_id
+                 left join ins_product_result ipr on ip.id = ipr.ins_product_id
+        where ins_order_id = #{id}
+          and state = 1
+--           and ins_fiber_id is null
+--           and ins_fibers_id is null
+          and <!--isa.sample_code NOT REGEXP '/'-->
+            isa.id in(select id1 from (select is2.id id1 ,ip.id from ins_sample is2 left join ins_product ip on is2.id = ip.ins_sample_id where ip.id is not null)s )
+        order by ip.sort asc,
+            case when man_hour_group is NULL then 1
+        when man_hour_group ='' then 1  else 0 end,
+        CASE
+        WHEN man_hour_group REGEXP '^[0-9]' THEN CAST(man_hour_group AS UNSIGNED) -- 如果以数字开头，则按照数字大小排序
+        WHEN man_hour_group REGEXP '[0-9]+' THEN CAST(SUBSTRING(man_hour_group, 2)AS UNSIGNED) END -- 提取字母后面的数字部分
+        ,id asc
+    </select>
+    <select id="getInsOrderAndSample" resultMap="sampleDto">
+        select isa.*,
+               ip.id          ip_id,
+               inspection_item,
+               inspection_item_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               inspection_item_subclass,
+               inspection_item_subclass_en,
+               ip.factory     ip_factory,
+               ip.laboratory  ip_laboratory,
+               ip.sample_type ip_sample_type,
+               ip.sample      ip_sample,
+               ip.model       ip_model,
+               son_laboratory,
+               ip.unit        ip_unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               device_group,
+               checkout_number,
+               section,
+               value_type,
+               method,
+               man_day,
+               bsm,
+               ask,
+               `last_value`,
+               ip.ins_result  ip_ins_result,
+               state,
+               ins_sample_id,
+               ip.create_user ip_create_user,
+               ip.update_user ip_update_user,
+               ip.create_time ip_create_time,
+               ip.update_time ip_update_time,
+               template_id,
+               ipr.ins_value,
+               ipr.com_value,
+               ipr.equip_value,
+               ipr.equip_name,
+               ip.method_s,
+               ip.tell,
+               ip.dic,
+               ip.temperature,
+               ip.humidity
+        from ins_sample isa
+                 left join ins_product ip on isa.id = ip.ins_sample_id
+                 left join ins_product_result ipr on ip.id = ipr.ins_product_id
+        where ins_order_id = #{id}
+          and state = 1
+          and ip.son_laboratory = #{laboratory}
+    </select>
+    <select id="getSampleEn" resultType="java.lang.String">
+        select name_en
+        from product
+        where name = #{sample}
+        limit 1
+    </select>
+    <select id="getSampleEnByObject" resultType="java.lang.String">
+        select specimen_name_en
+        from structure_test_object
+        where specimen_name = #{sample}
+        limit 1
+    </select>
+    <select id="selectInsOrder" resultType="map">
+        SELECT
+            ifs.order_no AS orderNo,
+            ifs.supplier_id AS supplierId,
+            ifs.supplier_name AS supplierName,
+            ifs.part_no AS partNo,
+            ifs.qty_arrived AS qtyArrived,
+            ifs.receiver_date AS receiverDate,
+            ifs.update_batch_no AS updateBatchNo,
+            ifs.part_desc AS partDesc,
+            io.send_time AS sendTime,
+            ifs.declare_user declareUser,
+            ifs.id inventoryQuantityId,
+            ifs.buy_unit_meas buyUnitMeas,
+            io.test_quantity testQuantity,
+            ifs.buy_unit_meas buyUnitMeas,
+            ifs.declare_date declareDate
+        FROM
+            ifs_inventory_quantity ifs
+                LEFT JOIN ins_order io ON ifs.id = io.ifs_inventory_id
+        WHERE
+            io.id = #{id}
+    </select>
+    <select id="selectSampleProductListByOrderId2" resultMap="sampleDto">
+        select isa.*,
+               ip.id          ip_id,
+               inspection_item,
+               inspection_item_en,
+               inspection_item_subclass,
+               inspection_item_subclass_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               ip.factory     ip_factory,
+               ip.laboratory  ip_laboratory,
+               ip.sample_type ip_sample_type,
+               ip.sample      ip_sample,
+               ip.model       ip_model,
+               son_laboratory,
+               ip.unit        ip_unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               device_group,
+               checkout_number,
+               section,
+               value_type,
+               method,
+               man_day,
+               bsm,
+               ask,
+               tell,
+               `last_value`,
+               ip.ins_result  ip_ins_result,
+               state,
+               ins_sample_id,
+               ip.create_user ip_create_user,
+               ip.update_user ip_update_user,
+               ip.create_time ip_create_time,
+               ip.update_time ip_update_time,
+               template_id,
+               ipr.ins_value,
+               ipr.com_value,
+               ipr.equip_value,
+               ip.method_s,
+               ip.radius,
+               isa.special_standard_method
+        from ins_sample isa
+                 left join ins_product ip on isa.id = ip.ins_sample_id
+                 left join ins_product_result ipr on ip.id = ipr.ins_product_id
+        where ins_order_id = #{id}
+          and ip.standard_method_list_id is not null
+          and state = 1
+          and ip.is_binding != 1
+        order by ip.sort asc,
+            case when man_hour_group is NULL then 1
+                      when man_hour_group ='' then 1  else 0 end,
+                 CASE
+                     WHEN man_hour_group REGEXP '^[0-9]' THEN CAST(man_hour_group AS UNSIGNED) -- 如果以数字开头，则按照数字大小排序
+                     WHEN man_hour_group REGEXP '[0-9]+' THEN CAST(SUBSTRING(man_hour_group, 2)AS UNSIGNED) END -- 提取字母后面的数字部分
+                ,id asc
+    </select>
+
+    <select id="getInsProduct1" resultMap="product">
+        select <include refid="getInsProducSql"/>
+        from ins_product ip
+                 left join ins_product_result ipr on ip.id = ipr.ins_product_id
+        where ins_sample_id = #{id}
+          and state = 1
+          and ip.son_laboratory = #{laboratory}
+          and ins_fiber_id is null
+          and ins_fibers_id is null
+          and standard_method_list_id is not null
+        /* 电缆配置标识 */
+        <if test="cableTag == null or cableTag == ''">
+            and ip.cable_tag is null
+        </if>
+        <if test="cableTag != null and cableTag != ''">
+            and ip.cable_tag = #{cableTag}
+        </if>
+        /* 重复值标识 */
+        <if test="repetitionTag == null or repetitionTag == ''">
+            and ip.repetition_tag is null
+        </if>
+        <if test="repetitionTag != null and repetitionTag != ''">
+            and ip.repetition_tag = #{repetitionTag}
+        </if>
+        order by sort asc
+    </select>
+
+    <select id="getInsProduct6" resultMap="product">
+        select <include refid="getInsProducSql"/>
+        from ins_product ip
+        left join ins_product_result ipr on ip.id = ipr.ins_product_id
+        where ins_sample_id = #{id}
+        and state = 1
+        and ip.son_laboratory = #{laboratory}
+        and ins_fiber_id is null
+        and ins_fibers_id is null
+        and standard_method_list_id is not null
+        and ip.raw_material_tag = #{rawMaterialTag}
+        order by sort asc
+    </select>
+
+    <select id="getDetailById" resultMap="sampleVo">
+        select is2.*,
+               code methodName
+        from ins_sample is2
+                 inner join standard_method sm on standard_method_list_id = sm.id
+        where is2.id = #{sampleId}
+    </select>
+
+    <select id="selMethodById" resultType="java.lang.String">
+        select code
+        from standard_method
+        where id = (select standard_method_list_id from ins_sample where id = #{sampleId})
+    </select>
+
+    <!-- 查看电缆配置标识 -->
+    <select id="getCableTag" resultType="java.util.Map">
+        select ip.cable_tag cableTag,
+               CASE
+                   WHEN COUNT(ip.last_value) = 0 THEN '0'
+                   WHEN COUNT(CASE WHEN ip.last_value = '' OR ip.last_value IS NULL THEN 1 END) = 0 THEN '2'
+                   ELSE '2'
+                   END AS status
+        from ins_product ip
+        where ins_sample_id = #{id}
+          and state = 1
+          and ip.son_laboratory = #{laboratory}
+          and ins_fiber_id is null
+          and ins_fibers_id is null
+          and standard_method_list_id is not null
+          and ip.cable_tag is not null
+        group by ip.cable_tag
+    </select>
+
+    <!-- 原材料查看配置标识 -->
+    <select id="getRawMaterialTag" resultType="java.util.Map">
+        select ip.raw_material_tag rawMaterialTag,
+               CASE
+                   WHEN COUNT(ip.last_value) = 0 THEN '0'
+                   WHEN COUNT(CASE WHEN ip.last_value = '' OR ip.last_value IS NULL THEN 1 END) = 0 THEN '2'
+                   ELSE '1'
+                   END AS status
+        from ins_product ip
+        where ins_sample_id = #{id}
+          and state = 1
+          and ip.son_laboratory = #{laboratory}
+          and ins_fiber_id is null
+          and ins_fibers_id is null
+          and standard_method_list_id is not null
+          and ip.raw_material_tag is not null
+        group by ip.raw_material_tag
+    </select>
+
+    <!-- 查看重复标识 -->
+    <select id="getRepetitionTag" resultType="java.util.Map">
+        select ip.repetition_tag repetitionTag,
+               CASE
+                   WHEN COUNT(ip.last_value) = 0 THEN '0'
+                   WHEN COUNT(CASE WHEN ip.last_value = '' OR ip.last_value IS NULL THEN 1 END) = 0 THEN '2'
+                   ELSE '1'
+                   END AS status,
+               GROUP_CONCAT(DISTINCT ip.radius SEPARATOR '，') AS radius
+        from ins_product ip
+        where ins_sample_id = #{id}
+          and state = 1
+          and ip.son_laboratory = #{laboratory}
+          and ins_fiber_id is null
+          and ins_fibers_id is null
+          and standard_method_list_id is not null
+          and ip.repetition_tag is not null
+        /* 电缆配置标识 */
+        <if test="cableTag == null or cableTag == ''">
+            and ip.cable_tag is null
+        </if>
+        <if test="cableTag != null and cableTag != ''">
+            and ip.cable_tag = #{cableTag}
+        </if>
+        group by ip.repetition_tag
+    </select>
+
+    <select id="selectExemptionByOrderId" resultType="com.ruoyi.inspect.dto.SampleProductDto">
+        select *
+        from ins_sample
+        where ins_order_id = #{id}
+    </select>
+    <select id="selectSupplierDensityModel" resultType="java.lang.String">
+        select psd.density_value densityValue
+        from product_supplier_density psd
+        where psd.product_id = (select id
+                                from product
+                                where name = #{sample}
+                                limit 1)
+          and psd.supplier_name = #{production}
+          and psd.model = #{model}
+        limit 1
+    </select>
+    <select id="selectSupplierDensity" resultType="java.lang.String">
+        select psd.density_value densityValue
+        from product_supplier_density psd
+        where psd.product_id = (select id
+                                from product
+                                where name = #{sample}
+                                limit 1)
+          and psd.supplier_name = #{production}
+          and (psd.model = '' or psd.model is null)
+        limit 1
+    </select>
+
+    <!-- 查询检验项检验结果 -->
+    <select id="selectProductResult" resultMap="product">
+        select <include refid="getInsProducSql"/>
+        from ins_product ip
+        left join ins_product_result ipr on ip.id = ipr.ins_product_id
+        where ip.id in
+        <foreach collection="itemIds" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+        order by ip.sort asc
+    </select>
+
+    <!-- 根据订单id查询样品 -->
+    <select id="getSampleByOrderId" resultType="com.ruoyi.inspect.pojo.InsSample">
+        select is2.*,
+               sml.name standard_method_name
+        from ins_sample is2
+                 left join standard_method sml on sml.id = is2.standard_method_list_id
+        where is2.ins_order_id = #{insOrderId}
+    </select>
+
+</mapper>

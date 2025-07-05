@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.InternalCorrectMapper">
+
+    <select id="pageInternalAccording" resultType="com.ruoyi.manage.pojo.InternalCorrect">
+        select *
+        from (select *
+        from cnas_internal_correct
+        order by create_time desc) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.AuxiliaryOutputWorkingHoursMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.performance.pojo.AuxiliaryOutputWorkingHours">
+        <id column="id" property="id"/>
+        <result column="inspection_item" property="inspectionItem"/>
+        <result column="inspection_item_subclass" property="inspectionItemSubclass"/>
+        <result column="sample" property="sample"/>
+        <result column="overtime_order_no" property="overtimeOrderNo"/>
+        <result column="overtime_work_time" property="overtimeWorkTime"/>
+        <result column="overtime_amount" property="overtimeAmount"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="work_time" property="workTime"/>
+        <result column="amount" property="amount"/>
+        <result column="output_work_time" property="outputWorkTime"/>
+        <result column="date_time" property="dateTime"/>
+        <result column="week" property="week"/>
+        <result column="week_day" property="weekDay"/>
+        <result column="check" property="check"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+    </resultMap>
+
+    <sql id="selectAuxiliaryOutputWorking">
+        select *
+        from (
+        select aowh.id,
+        aowh.inspection_item_class,
+        aowh.inspection_item,
+        aowh.inspection_item_subclass,
+        aowh.overtime_order_no,
+        aowh.overtime_work_time,
+        aowh.overtime_amount,
+        aowh.order_no,
+        aowh.work_time,
+        aowh.amount,
+        aowh.output_work_time,
+        aowh.date_time,
+        aowh.week,
+        aowh.week_day,
+        user.name,
+        aowh.sample,
+        aowh.price,
+        aowh.man_hour_group,
+        ip.cable_tag,
+        aowh.create_time
+        FROM auxiliary_output_working_hours aowh
+        left join ins_product ip on ip.id = aowh.ins_product_id
+        left join user on user.id=aowh.`check`
+        WHERE 1=1
+        <if test="ids !=null and ids.size() > 0">
+            and `check` in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        ) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by create_time desc
+    </sql>
+    <select id="selectAuxiliaryOutputWorkingHours" resultType="com.ruoyi.performance.dto.AuxiliaryOutputWorkingHoursDto">
+        <include refid="selectAuxiliaryOutputWorking"/>
+    </select>
+    <select id="selectDataByUser" resultType="com.ruoyi.performance.dto.AuxiliaryOutputWorkingHoursDto">
+        select aowh.*, name, ip.cable_tag cableTag
+        FROM auxiliary_output_working_hours aowh
+        left join ins_product ip on ip.id = aowh.ins_product_id
+        left join user on user.id = aowh.`check`
+        WHERE 1 = 1
+        <if test="ids !=null and ids.size() > 0">
+            and `check` in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+    </select>
+    <select id="totalHours" resultType="java.util.Map">
+        select A.name,
+        A.month,
+        FORMAT(SUM(A.manHours), 4) manHours
+        from(
+        select user.name,
+        date_time as month,
+        order_no,
+        sample,
+        man_hour_group,
+        case when #{type}='加班工时' then  case when overtime_work_time is null then 0 else overtime_work_time end
+        else case when work_time is null then 0 else work_time end  end as manHours
+        -- FORMAT(SUM(output_work_time), 4) as manHours
+        from auxiliary_output_working_hours aowh
+        left join user on user.id=aowh.`check`
+        left join department_lims dl on depart_lims_id=dl.id
+        where date_time LIKE CONCAT('%', #{month}, '%')
+        <if test="ids !=null and ids != ''">
+            and `check` in
+            <foreach collection="ids" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        group by user.name,date_time,order_no,
+        sample,
+        man_hour_group
+        order by user.name,date_time,order_no,
+        sample,
+        man_hour_group
+        )A
+        group by A.name,
+        A.month
+        order by A.name,
+        A.month
+    </select>
+    <select id="selectListByIds" resultType="com.ruoyi.performance.pojo.AuxiliaryOutputWorkingHours">
+        select * from auxiliary_output_working_hours
+        where 1=1
+        <if test="ids !=null and ids != ''">
+            and `check` in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectLists" resultMap="BaseResultMap">
+        select * from(select * from auxiliary_output_working_hours
+        WHERE 1=1
+        <if test="ids !=null and ids != ''">
+            and `check` in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        ) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectAuxiliaryAllByMonth" resultType="com.ruoyi.performance.dto.AuxiliaryAllDto">
+        select sum(aowh.work_time) yieldHour,
+               u.name           userName,
+               aowh.`check`           userId,
+               #{dto.month} month
+        from (SELECT ao.*, ip.cable_tag
+        FROM auxiliary_output_working_hours ao
+        left join ins_product ip on ip.id = ao.ins_product_id
+        GROUP BY CASE
+        WHEN ao.man_hour_group IS NOT NULL AND ao.man_hour_group != '' THEN ao.man_hour_group
+        ELSE ao.id END,
+        CASE WHEN ao.man_hour_group IS NOT NULL AND ao.man_hour_group != '' THEN ao.sample_id ELSE ao.id END,
+        CASE WHEN ao.man_hour_group IS NOT NULL AND ao.man_hour_group != '' THEN ip.radius ELSE ao.id END,
+        CASE WHEN ao.man_hour_group IS NOT NULL AND ao.man_hour_group != '' THEN ip.cable_tag ELSE ao.id END,
+        CASE WHEN ao.man_hour_group IS NOT NULL AND ao.man_hour_group != '' THEN ao.order_id ELSE ao.id END) aowh
+                 left join user u on u.id = aowh.`check`
+        where aowh.date_time between #{dto.beginDate} and #{dto.endDate}
+        <if test="userIds !=null and userIds.size() > 0">
+            and aowh.`check` in
+            <foreach collection="userIds" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        group by aowh.`check`
+    </select>
+    <select id="selectSubsidiaryAllByMonth" resultType="com.ruoyi.performance.dto.AuxiliaryAllDto">
+        select sum(awhd.reviewer_nonproductive_time) subsidiaryHour,
+               u.name              userName,
+               awhd.name_user      userId,
+               #{dto.month} month
+        from auxiliary_working_hours_day awhd
+                 left join user u on u.id = awhd.name_user
+        where awhd.date_time between #{dto.assistBeginDate} and #{dto.assistEndDate}
+        and awhd.state = '已批准'
+        <if test="userIds !=null and userIds.size() > 0">
+            and awhd.name_user in
+            <foreach collection="userIds" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        group by awhd.name_user
+    </select>
+    <!-- 查询产量工时集合 -->
+    <select id="selectAuxiliaryOutputWorkingHoursList" resultType="com.ruoyi.performance.dto.AuxiliaryOutputWorkingHoursDto">
+        <include refid="selectAuxiliaryOutputWorking"/>
+    </select>
+</mapper>

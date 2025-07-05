@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeTempHumRecordMapper">
+
+    <select id="getFeTempHumRecordPage" resultType="com.ruoyi.require.dto.FeTempHumRecordDto">
+        select c.*,
+               u1.name          afternoon_recorder_user,
+               u2.name          morning_recorder_user,
+               u1.signature_url afternoon_recorder_url,
+               u2.signature_url morning_recorder_url,
+               cl.temperature_lowest,
+               cl.temperature_highest,
+               cl.humidity_lowest,
+               cl.humidity_highest,
+               cd.test_area_name
+        from cnas_fe_temp_hum_record c
+                 left join user u1 on u1.id = c.afternoon_recorder_id
+                 left join user u2 on u2.id = c.morning_recorder_id
+                 left join cnas_fe_temp_hum_date cd on cd.date_id = c.date_id
+                 left join collect_laboratory cl on cl.laboratory = cd.test_area_name
+        where c.date_id = #{dateId}
+        ORDER BY c.record_date desc
+    </select>
+
+    <!-- 查询有日期但是未填写名字的 -->
+    <select id="selectNoaffirm" resultType="com.ruoyi.require.dto.FeTempHumRecordDto">
+        select cr.*,
+               cd.registrar_user_id,
+               cd.test_area_name
+        from cnas_fe_temp_hum_record cr
+                 left join cnas_fe_temp_hum_date cd on cd.date_id = cr.date_id
+        where cr.record_date = #{date}
+          and (morning_test_time is not null and morning_recorder_id is null)
+          and cd.registrar_user_id is not null
+    </select>
+</mapper>

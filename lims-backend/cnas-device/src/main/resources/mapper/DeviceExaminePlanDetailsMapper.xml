@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceExaminePlanDetailsMapper">
+
+
+    <!--设备核查计划详情列表-->
+    <select id="pageDeviceExaminePlanDetail" resultType="com.ruoyi.device.dto.DeviceExaminePlanDetailsDto">
+        select * from (
+        select d.*,
+        CASE
+        WHEN dc.review_status = 0 THEN 3
+        WHEN dc.review_status = 1 THEN 2
+        WHEN dc.record_id IS NOT NULL THEN 1
+        ELSE 0 END record_status,
+        CASE
+        WHEN dd.review_status = 0 THEN 3
+        WHEN dd.review_status = 1 THEN 2
+        WHEN dd.record_contrast_id IS NOT NULL THEN 1
+        ELSE 0 END record_contrast_status
+        from device_examine_plan_details d
+        left join device_examine_record dc on d.plan_details_id = dc.plan_details_id
+        left join device_examine_record_contrast dd on dd.plan_details_id = dc.plan_details_id
+        order by check_time asc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

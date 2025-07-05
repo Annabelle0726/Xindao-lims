@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageDocumentListMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageDocumentList">
+        <id column="id" property="id"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="type" property="type"/>
+        <result column="name" property="name"/>
+        <result column="version" property="version"/>
+        <result column="writer" property="writer"/>
+        <result column="effective_date" property="effectiveDate"/>
+        <result column="state" property="state"/>
+        <result column="url" property="url"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    <select id="pageManageDocumentList" resultType="com.ruoyi.manage.pojo.ManageDocumentList">
+        select * from (select * from cnas_manage_document_list ) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

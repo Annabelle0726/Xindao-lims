@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.personnel.mapper.PersonTrainingMapper">
+
+    <!-- 根据创建人的部门筛选数据，可是创建人可能未分配部门也需要查看 -->
+    <select id="personTrainingSelect" resultType="com.ruoyi.personnel.dto.PersonTrainingDto">
+        SELECT
+        cpt.*,
+        u1.name compiler_name,
+        u2.name reviewer_name,
+        u3.name approver_name,
+        u4.name create_user_name
+        FROM
+        cnas_person_training cpt
+        LEFT JOIN user u1 ON cpt.compiler_id = u1.id
+        LEFT JOIN user u2 ON cpt.reviewer_id = u2.id
+        LEFT JOIN user u3 ON cpt.approver_id = u3.id
+        LEFT JOIN user u4 ON cpt.create_user = u4.id
+        <where>
+            <if test="departLimsId != null and departLimsId != ''">
+                and FIND_IN_SET(#{departLimsId}, u4.depart_lims_id)
+            </if>
+            <if test="compilerName != null and compilerName != ''">
+                and u4.name like concat('%', #{compilerName}, '%')
+            </if>
+        </where>
+        union
+        SELECT
+        cpt.*,
+        u1.name compiler_name,
+        u2.name reviewer_name,
+        u3.name approver_name,
+        u4.name create_user_name
+        FROM
+        cnas_person_training cpt
+        LEFT JOIN user u1 ON cpt.compiler_id = u1.id
+        LEFT JOIN user u2 ON cpt.reviewer_id = u2.id
+        LEFT JOIN user u3 ON cpt.approver_id = u3.id
+        LEFT JOIN user u4 ON cpt.create_user = u4.id
+        WHERE
+        u4.depart_lims_id is not null and length(u4.depart_lims_id) = 0
+        <if test="compilerName != null and compilerName != ''">
+            and u4.name like concat('%', #{compilerName}, '%')
+        </if>
+    </select>
+</mapper>

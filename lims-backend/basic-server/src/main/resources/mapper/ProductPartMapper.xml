@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.ProductPartMapper">
+    <select id="selectListByProductId" resultType="com.ruoyi.basic.pojo.ProductPart">
+        SELECT * from product_part pp
+        where  pp.product_id=#{productId}
+    </select>
+</mapper>

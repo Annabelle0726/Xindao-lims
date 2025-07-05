@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.StandardTreeMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.basic.pojo.StandardTree">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="factory" column="factory" jdbcType="VARCHAR"/>
+        <result property="laboratory" column="laboratory" jdbcType="VARCHAR"/>
+        <result property="sampleType" column="sample_type" jdbcType="VARCHAR"/>
+        <result property="sample" column="sample" jdbcType="VARCHAR"/>
+        <result property="model" column="model" jdbcType="VARCHAR"/>
+        <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="FactoryDto" type="com.ruoyi.basic.dto.FactoryDto">
+        <result property="label" column="factory"/>
+        <result property="value" column="factory"/>
+        <collection property="children" resultMap="LaboratoryDto"/>
+    </resultMap>
+
+    <resultMap id="LaboratoryDto" type="com.ruoyi.basic.dto.LaboratoryDto">
+        <result property="label" column="laboratory"/>
+        <result property="value" column="laboratory"/>
+        <collection property="children" resultMap="SampleTypeDto"/>
+    </resultMap>
+
+    <resultMap id="SampleTypeDto" type="com.ruoyi.basic.dto.SampleTypeDto">
+        <result property="label" column="sample_type"/>
+        <result property="value" column="sample_type"/>
+        <result property="sampleTypeId" column="sample_type_id"/>
+        <result property="sort" column="sort"/>
+        <result property="partNo" column="part_no"/>
+        <result property="sampleTypeEn" column="sample_type_en"/>
+        <collection property="children" resultMap="SampleDto"/>
+    </resultMap>
+
+    <resultMap id="SampleDto" type="com.ruoyi.basic.dto.SampleDto">
+        <result property="label" column="sample"/>
+        <result property="value" column="sample"/>
+        <result property="partNo" column="sample_part_no"/>
+        <result property="sampleEn" column="sample_en"/>
+        <collection property="children" resultMap="ModelDto"/>
+    </resultMap>
+
+    <resultMap id="ModelDto" type="com.ruoyi.basic.dto.ModelDto">
+        <result property="label" column="model"/>
+        <result property="value" column="model"/>
+    </resultMap>
+
+    <sql id="selectStandardTree">
+        sample    sample2,
+               inspection_item,
+               inspection_item_en,
+               inspection_item_subclass,
+               inspection_item_subclass_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               method,
+               son_laboratory,
+               unit,
+               ask_tell  tell,
+               ask,
+               price,
+               man_hour,
+               man_hour_group,
+               man_day,
+               inspection_item_type,
+               inspection_value_type,
+               bsm,
+               template_id,
+               laboratory,
+               checkout_number,
+               section,
+               dic,
+               0         state,
+        #{model}
+        model,
+        #{sample}
+        sample,
+        #{trees}
+        tree,
+        id
+        structure_item_parameter_id,
+        radius_list,
+        rates
+    </sql>
+
+    <select id="selectStandardTreeList" resultMap="FactoryDto">
+        select '中天科技检测中心'        factory,
+               l.laboratory_name laboratory,
+               sto.specimen_name sample_type,
+               p.name            sample,
+               st.model,
+               sto.code,
+               sto.id  sample_type_id,
+               sto.sort,
+               sto.specimen_name_en sample_type_en,
+               p.name_en sample_en
+        from laboratory l
+                 left join structure_test_object sto on sto.laboratory_id = l.id
+                 left join product p on p.object_id = sto.id
+                 left join standard_tree st on st.sample_type = sto.specimen_name
+            and st.sample = p.name
+        order by l.id, CAST(sto.code AS DECIMAL), p.id, ISNULL(st.id), st.id
+    </select>
+
+    <select id="selectStandardProductById" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select inspection_item,
+               inspection_item_subclass,
+               laboratory,
+               son_laboratory,
+               unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               checkout_number,
+               section,
+               method,
+               man_day,
+               bsm,
+               template_id
+        from structure_item_parameter
+        where id = #{id}
+    </select>
+    <select id="getStandardProductListBySample" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select inspection_item,
+               inspection_item_subclass,
+               laboratory,
+               son_laboratory,
+               unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               checkout_number,
+               section,
+               method,
+               man_day,
+               sample,
+               bsm,
+               template_id,
+               dic,
+               ask,
+               ask_tell as tell
+        from structure_item_parameter sp
+        where sp.sample = #{sampleType}
+           or sp.sample = ''
+           or sp.sample = '[]'
+    </select>
+
+    <select id="selectStandardTreeList2" resultType="com.ruoyi.basic.pojo.StandardTree">
+        select '中天科技检测中心'        factory,
+               l.laboratory_name laboratory,
+               sto.specimen_name sample_type,
+               p.name            sample
+        from laboratory l
+                 left join structure_test_object sto on sto.laboratory_id = l.id
+                 left join product p on p.object_id = sto.id
+                 left join standard_tree st on st.laboratory = l.laboratory_name
+            and st.sample_type = sto.specimen_name
+            and st.sample = p.name
+        where sto.specimen_name = #{sampleType}
+        group by sto.specimen_name
+    </select>
+    <select id="selectStandardProductListByTree" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select <include refid="selectStandardTree"/>
+        from structure_item_parameter
+        where (
+                sample is NULL
+                OR sample = ''
+                or sample = '[]'
+                OR sample LIKE CONCAT('%[', #{tree}, ']%')
+            )
+          and (laboratory is null
+            or laboratory = ''
+            or laboratory = #{laboratory})
+        order by inspection_item_class, inspection_item, id asc
+    </select>
+
+    <select id="selectStandardProductListByTree2" resultType="com.ruoyi.basic.pojo.StandardProductList">
+        select <include refid="selectStandardTree"/>
+        from structure_item_parameter
+        where sample LIKE CONCAT('%[', #{tree}, ']%')
+          and (laboratory is null
+            or laboratory = ''
+            or laboratory = #{laboratory})
+        order by inspection_item_class, inspection_item, id asc
+    </select>
+
+    <select id="getStandardTree2" resultMap="SampleTypeDto">
+        select sto.specimen_name sample_type,
+               p.name            sample,
+               st.model
+        from structure_test_object sto
+                 left join product p on p.object_id = sto.id
+                 left join standard_tree st on st.sample_type = sto.specimen_name
+            and st.sample = p.name
+    </select>
+
+    <select id="getLaboratory" resultType="java.lang.String">
+        select l.laboratory_name
+        from structure_test_object sto
+                 left join laboratory l on sto.laboratory_id = l.id
+        where sto.specimen_name = #{str}
+    </select>
+    <select id="getStructureItemParameterId" resultType="java.lang.Integer">
+        select id from structure_item_parameter
+        where sample like concat('%', #{sampleType}, '%')
+        and inspection_item = #{item}
+        <if test="itemChild != null and itemChild != ''">
+            and inspection_item_subclass = #{itemChild}
+        </if>
+        <if test="inspectionItemClass != null and inspectionItemClass != ''">
+            and inspection_item_class = #{inspectionItemClass}
+        </if>
+        <if test="itemChild == null or itemChild == ''">
+            and (inspection_item_subclass is null or inspection_item_subclass = '')
+        </if>
+    </select>
+    <select id="selectPList" resultType="com.ruoyi.basic.dto.ProductDto">
+        select p.name
+        from structure_test_object sto
+                 left join product p on p.object_id = sto.id
+        where sto.specimen_name = #{name}
+        order by p.id
+    </select>
+    <select id="selSample" resultType="java.lang.String">
+        select name
+        from product
+        where name = #{name}
+    </select>
+    <select id="selectStandardTreeListByPartNo" resultMap="FactoryDto">
+        select '中天科技检测中心' factory,
+               l.laboratory_name  laboratory,
+               sto.specimen_name  sample_type,
+               p.name             sample,
+               st.model,
+               CASE
+                   WHEN p.id = (SELECT pp.product_id
+                                FROM product_part pp
+                                WHERE pp.part_no = #{partNo})
+                       THEN #{partNo}
+                   ELSE NULL
+                   END AS sample_part_no,
+               CASE
+                   WHEN sto.id = (SELECT sto.test_object_id
+                                  FROM structure_test_object_part sto
+                                  WHERE sto.part_no = #{partNo})
+                       THEN #{partNo}
+                   ELSE NULL
+                   END AS part_no
+        from laboratory l
+                 left join structure_test_object sto on sto.laboratory_id = l.id
+                 left join product p on p.object_id = sto.id
+                 left join standard_tree st on st.sample_type = sto.specimen_name
+            and st.sample = p.name
+        where (p.id = (select pp.product_id
+                       from product_part pp
+                       where pp.part_no = #{partNo})
+            or sto.id = (select sto.test_object_id
+                         from structure_test_object_part sto
+                         where sto.part_no = #{partNo}))
+        order by l.id, CAST(sto.code AS DECIMAL), p.id, ISNULL(st.id), st.id
+    </select>
+
+    <sql id="getIfsOrder">
+        select *
+        from (SELECT ifs.*,
+                     COALESCE(io1.create_user, io2.create_user)           create_user,
+                     COALESCE(io1.entrust_code, io2.entrust_code)         entrust_code,
+                     COALESCE(io1.send_time, io2.send_time)               send_time,
+                     io1.id                                      enter_order_id,
+                     ir1.id                                      enter_report_id,
+                     ir1.url                                     enter_url,
+                     ir1.url_s                                   enter_url_s,
+                     io2.id                                      quarter_order_id,
+                     ir2.id                                      quarter_report_id,
+                     ir2.url                                     quarter_url,
+                     ir2.url_s                                   quarter_url_s,
+                     group_concat(distinct isa.sample_code, ' ')          sample_code,
+                     group_concat(distinct isa.sample, ' ')               sample_name,
+                     group_concat(distinct isa.model, ' ')                sample_model,
+                     COALESCE(io1.state, io2.state)                       order_state,
+                     COALESCE(isu.userName, COALESCE(u1.name, u2.name)) user_name,
+                     group_concat(distinct iuh.unqualified_desc, ' ')    unqualified_desc,
+                     io1.is_exemption
+              FROM ifs_inventory_quantity ifs
+                       LEFT JOIN ins_order io1 ON io1.ifs_inventory_id = ifs.id and io1.order_type = '进厂检验' and io1.state != -1
+                       left join ins_report ir1 on io1.id = ir1.ins_order_id
+                       left join user u1 on io1.create_user = u1.id
+                       LEFT JOIN ins_order io2 ON io2.ifs_inventory_id = ifs.id and io2.order_type = 'Quarterly inspection' and io2.state != -1
+                       left join ins_report ir2 on io2.id = ir2.ins_order_id
+                       left join user u2 on io2.create_user = u2.id
+                       LEFT JOIN ins_sample isa ON COALESCE(io1.id, io2.id) = isa.ins_order_id
+                       LEFT JOIN (SELECT ins_sample_id, GROUP_CONCAT(DISTINCT uu.name SEPARATOR ',') AS userName
+                                  FROM ins_sample_user u
+                                           LEFT JOIN user uu ON u.user_id = uu.id
+                                  WHERE u.state = 0
+                                  GROUP BY ins_sample_id
+                                  ORDER BY ins_sample_id) isu ON isu.ins_sample_id = COALESCE(io1.id, io2.id)
+                       left join ins_unqualified_handler iuh on iuh.inventory_quantity_id = ifs.id
+              group by ifs.id) a
+    </sql>
+
+    <select id="getIfsByStateOne" resultType="com.ruoyi.basic.dto.IfsInventoryQuantityDto">
+        <include refid="getIfsOrder"/>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by send_time desc
+    </select>
+
+    <select id="selectIfsPage" resultType="com.ruoyi.basic.pojo.IfsInventoryQuantity">
+        SELECT * from ifs_inventory_quantity ifs
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        ORDER BY declare_date DESC
+    </select>
+    <select id="selectIfsInventoryQuantity" resultType="com.ruoyi.basic.dto.IfsInventoryQuantityCheckDto">
+        SELECT * from ifs_inventory_quantity ifs
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="getIfsByOver" resultType="com.ruoyi.basic.dto.IfsInventoryQuantitySupplierDto">
+        select * from (<include refid="getIfsOrder"/>
+        <where>
+            <if test="beginDeclareDate != null and beginDeclareDate != '' and endDeclareDate != null and endDeclareDate != ''">
+                send_time between #{beginDeclareDate} and #{endDeclareDate}
+            </if>
+        </where>
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by send_time desc
+    </select>
+    <select id="getIfsByOverList" resultType="com.ruoyi.basic.dto.IfsInventoryQuantitySupplierDto">
+        select * from (<include refid="getIfsOrder"/>
+            <where>
+                <if test="beginDeclareDate != null and beginDeclareDate != '' and endDeclareDate != null and endDeclareDate != ''">
+                    send_time between #{beginDeclareDate} and #{endDeclareDate}
+                </if>
+            </where>
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="getIfsByQuarter" resultType="com.ruoyi.basic.dto.IfsInventoryQuantitySupplierDto">
+        select * from (<include refid="getIfsOrder"/>
+        <where>
+            and (quarter_order_id is not null)
+            <if test="beginDeclareDate != null and beginDeclareDate != '' and endDeclareDate != null and endDeclareDate != ''">
+                and  send_time between #{beginDeclareDate} and #{endDeclareDate}
+            </if>
+        </where>
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getStandardTree3Batch" resultType="com.ruoyi.basic.dto.SampleDto">
+        select model label,
+               model value
+        from standard_tree
+        where sample is null
+        <if test="sampleTypeValues != null and sampleTypeValues.size() > 0">
+            and sample_type in
+            <foreach item="item" collection="sampleTypeValues" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getStandardTree3" resultType="com.ruoyi.basic.dto.SampleDto">
+        select model label,
+               model value
+        from standard_tree
+        where sample_type = #{sampleType}
+          and sample is null
+    </select>
+
+    <!-- 根据原材料id列表查询原材料信息 -->
+    <select id="getIfsByIds" resultType="com.ruoyi.basic.dto.IfsInventoryQuantitySupplierDto">
+        <include refid="getIfsOrder"/>
+        where id in
+        <foreach item="id" collection="ifsIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

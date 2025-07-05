@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.QualitySuperviseDetailsAccordingMapper">
+
+    <!-- 查询不符合控制单列表 -->
+    <select id="pageSuperviseDetailAccording"
+            resultType="com.ruoyi.process.pojo.QualitySuperviseDetailsAccording">
+        select *
+        from (select *
+              from cnas_quality_supervise_details_according
+              order by create_time desc
+             ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="selectSuperviseDetailsAccording"
+            resultType="com.ruoyi.process.dto.QualitySuperviseDetailsAccordingDto">
+        select sda.*,
+        DATE_FORMAT(sda.record_time, '%Y-%m-%d') discovererDateString,               <!-- 发现时间 -->
+        DATE_FORMAT(sda.actions_time, '%Y-%m-%d') responsibleDepartmentDateString,   <!-- 处理时间 -->
+        DATE_FORMAT(sda.correct_time, '%Y-%m-%d') correctiveMeasureDateString,       <!-- 纠正时间 -->
+        DATE_FORMAT(sda.quality_manager_time, '%Y-%m-%d') qualitySupervisorDateString,<!-- 质量时间 -->
+        DATE_FORMAT(sda.supervised_time, '%Y-%m-%d') supervisedTimeString,             <!-- 被监督时间 -->
+        case when sda.is_correct = 1 then '☑'
+        else '□' end correctiveMeasureFollowTracksYes, <!-- 纠正措施处理单跟踪(是) -->
+        case when sda.is_correct = 2 then '☑'
+        else '□' end correctiveMeasureFollowTracksNo,   <!-- 纠正措施处理单跟踪(否) -->
+        case when sda.notify_customer = 1 then '☑'
+        else '□' end whetherInformCustomerYes,        <!-- 告知客户(是) -->
+        case when sda.notify_customer = 2 then '☑'
+        else '□' end whetherInformCustomerNo,          <!-- 告知客户(否) -->
+        case when sda.back_to_work = 1 then '☑'
+        else '□' end whetherResumeWorkYes,              <!-- 恢复工作(是) -->
+        case when sda.back_to_work = 2 then '☑'
+        else '□' end whetherResumeWorkNo,                <!-- 恢复工作(否) -->
+        case when sda.find_way = 0 then '☑'
+        else '□' end discoveryApproach0,
+        case when sda.find_way = 1 then '☑'
+        else '□' end discoveryApproach1,
+        case when sda.find_way = 2 then '☑'
+        else '□' end discoveryApproach2,
+        case when sda.find_way = 3 then '☑'
+        else '□' end discoveryApproach3,
+        case when sda.find_way = 4 then '☑'
+        else '□' end discoveryApproach4,
+        case when sda.find_way = 5 then '☑'
+        else '□' end discoveryApproach5,
+        case when sda.find_way = 6 then '☑'
+        else '□' end discoveryApproach6,
+        case when sda.find_way = 7 then '☑'
+        else '□' end discoveryApproach7
+        from cnas_quality_supervise_details_according sda
+        where sda.supervise_details_id = #{superviseDetailId}
+    </select>
+</mapper>

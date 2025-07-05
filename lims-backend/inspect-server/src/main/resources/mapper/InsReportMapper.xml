@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsReportMapper">
+
+    <select id="pageInsReport" resultType="com.ruoyi.inspect.dto.ReportPageDto">
+        select *
+        from (
+        select
+        ir.*,
+        io.entrust_code,
+        u.name write_user_name,
+        u1.name ratify_user,
+        u2.name examine_user,
+        io.type_source,
+        io.order_type,
+        io.laboratory,
+        io.ifs_inventory_id,
+        iiq.is_copper,
+        ip.son_laboratory
+        from ins_report ir
+        left join ins_order io on io.id = ir.ins_order_id
+        LEFT JOIN ifs_inventory_quantity iiq ON iiq.id = io.ifs_inventory_id
+        left join user u on u.id = ir.write_user_id
+        left join user u1 on u1.id = ir.ratify_user_id
+        left join user u2 on u2.id = ir.examine_user_id
+        left join ins_sample is2 on is2.ins_order_id = io.id
+        left join ins_product ip on ip.ins_sample_id = is2.id
+        where 1=1
+        and ir.is_pass = 1
+        <if test="createOrderUser != null and createOrderUser != ''">
+            and (ir.write_user_id = #{createOrderUser} or ir.examine_user_id = #{createOrderUser} or ir.ratify_user_id = #{createOrderUser})
+        </if>
+        <if test="laboratory!=null and laboratory!=''">
+           and  laboratory=#{laboratory}
+        </if>
+        <if test="queryStatus != null and queryStatus != ''">
+            <!-- 待提交-->
+            <if test='queryStatus == 0'>
+                and ir.state = 0
+            </if>
+            <!-- 待审批-->
+            <if test='queryStatus == 1'>
+                and ir.state = 1 and (ir.is_examine != 1 or ir.is_examine is null)
+            </if>
+            <!-- 待批准-->
+            <if test='queryStatus == 2'>
+                and ir.state = 1 and ir.is_examine = 1 and (ir.is_ratify != 1 or ir.is_ratify is null)
+            </if>
+        </if>
+        group by ir.id
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+    <select id="getLaboratoryByName" resultType="java.lang.String">
+        select s.address from seal s
+        left join laboratory l on s.lab_id = l.id
+        where l.laboratory_name = #{name}
+        and s.type = #{type}
+        order by s.create_time desc
+        limit 1
+    </select>
+
+    <!-- 报告报表导出 -->
+    <select id="reportAllExport" resultType="com.ruoyi.inspect.dto.InsReportExport">
+        select code,
+        case when type_source = 0 then '成品下单' else '原材料下单' end                    type_source,
+        case
+        when order_type = '抽检' then '抽检'
+        when order_type = 'Customer-ordered test' then '委托检验'
+        when order_type = '进厂检验' then '进厂检验'
+        when order_type = 'Quarterly inspection' then '季度检验'
+        else '' end                                                                    order_type,
+        DATE_FORMAT(create_Time, '%Y-%m-%d %H:%i:%s')                                      create_Time,
+        write_user_name,
+        DATE_FORMAT(write_time, '%Y-%m-%d %H:%i:%s')                                       write_time,
+        case when state = 0 then '待提交' when state = 1 then '已提交' else '' end         state,
+        examine_user,
+        DATE_FORMAT(examine_time, '%Y-%m-%d %H:%i:%s')                                     examine_time,
+        case when is_examine = 0 then '不通过' when is_examine = 1 then '通过' else '' end is_examine,
+        examine_tell,
+        ratify_user,
+        DATE_FORMAT(ratify_time, '%Y-%m-%d %H:%i:%s')                                      ratify_time,
+        case when is_ratify = 0 then '不批准' when is_ratify = 1 then '批准' else '' end   is_ratify,
+        ratify_tell
+        from (
+        select
+        ir.*,
+        io.entrust_code,
+        u.name write_user_name,
+        u1.name ratify_user,
+        u2.name examine_user,
+        io.type_source,
+        io.order_type,
+        io.laboratory,
+        io.ifs_inventory_id,
+        iiq.is_copper,
+        ip.son_laboratory
+        from ins_report ir
+        left join ins_order io on io.id = ir.ins_order_id
+        LEFT JOIN ifs_inventory_quantity iiq ON iiq.id = io.ifs_inventory_id
+        left join user u on u.id = ir.write_user_id
+        left join user u1 on u1.id = ir.ratify_user_id
+        left join user u2 on u2.id = ir.examine_user_id
+        left join ins_sample is2 on is2.ins_order_id = io.id
+        left join ins_product ip on ip.ins_sample_id = is2.id
+        where 1=1
+        and ir.is_pass = 1
+        <if test="createOrderUser != null and createOrderUser != ''">
+            and (ir.write_user_id = #{createOrderUser} or ir.examine_user_id = #{createOrderUser} or ir.ratify_user_id = #{createOrderUser})
+        </if>
+        <if test="queryStatus != null and queryStatus != ''">
+            <!-- 待提交-->
+            <if test='queryStatus == 0'>
+                and ir.state = 0
+            </if>
+            <!-- 待审批-->
+            <if test='queryStatus == 1'>
+                and ir.state = 1 and (ir.is_examine != 1 or ir.is_examine is null)
+            </if>
+            <!-- 待批准-->
+            <if test='queryStatus == 2'>
+                and ir.state = 1 and ir.is_examine = 1 and (ir.is_ratify != 1 or ir.is_ratify is null)
+            </if>
+        </if>
+        group by ir.id
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+</mapper>

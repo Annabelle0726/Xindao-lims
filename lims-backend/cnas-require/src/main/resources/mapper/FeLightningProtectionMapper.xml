@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeLightningProtectionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.FeLightningProtection">
+        <id column="lightning_protection_id" property="lightningProtectionId" />
+        <result column="file_name" property="fileName" />
+        <result column="system_file_name" property="systemFileName" />
+        <result column="detection_date" property="detectionDate" />
+        <result column="term_validity" property="termValidity" />
+        <result column="detection_unit" property="detectionUnit" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <select id="exportOfLightningProtectionDetection" resultType="com.ruoyi.require.excel.FeLightningProtectionExcel">
+        select * from cnas_fe_lightning_protection
+    </select>
+</mapper>

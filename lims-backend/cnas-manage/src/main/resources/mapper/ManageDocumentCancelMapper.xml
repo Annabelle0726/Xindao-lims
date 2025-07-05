@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageDocumentCancelMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageDocumentCancel">
+        <id column="id" property="id"/>
+        <result column="create_user" property="createUser"/>
+        <result column="createUserName" property="createUserName"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="name" property="name"/>
+        <result column="version" property="version"/>
+        <result column="document_state" property="documentState"/>
+        <result column="method" property="method"/>
+        <result column="cancel_note" property="cancelNote"/>
+        <result column="check_user" property="checkUser"/>
+        <result column="checkUserName" property="checkUserName"/>
+        <result column="expect_cancel_date" property="expectCancelDate"/>
+        <result column="actually_cancel_date" property="actuallyCancelDate"/>
+        <result column="state" property="state"/>
+    </resultMap>
+
+    <select id="pageManageDocumentCancel" resultMap="BaseResultMap">
+        select * from (select mdc.*,
+        u.name createUserName
+        from cnas_manage_document_cancel mdc
+        left join user u on mdc.create_user = u.id)A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getManageDocumentCancel" resultMap="BaseResultMap">
+        select mdc.*,
+               u1.name createUserName,
+               u2.name checkUserName
+        from cnas_manage_document_cancel mdc
+                 left join user u1 on mdc.create_user = u1.id
+                 left join user u2 on mdc.check_user = u2.id
+        where mdc.id=#{id}
+    </select>
+</mapper>

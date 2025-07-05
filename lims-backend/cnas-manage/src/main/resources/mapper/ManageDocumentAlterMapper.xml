@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageDocumentAlterMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageDocumentAlter">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="create_user" property="createUser"/>
+        <result column="createUserName" property="createUserName"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="expect_alter_date" property="expectAlterDate"/>
+        <result column="actually_alter_date" property="actuallyAlterDate"/>
+        <result column="state" property="state"/>
+        <result column="check_user" property="checkUser"/>
+        <result column="checkUserName" property="checkUserName"/>
+        <result column="alter_note" property="alterNote"/>
+        <result column="alter_before_code" property="alterBeforeCode"/>
+        <result column="alter_before_name" property="alterBeforeName"/>
+        <result column="alter_before_version" property="alterBeforeVersion"/>
+        <result column="alter_after_code" property="alterAfterCode"/>
+        <result column="alter_after_name" property="alterAfterName"/>
+        <result column="alter_after_version" property="alterAfterVersion"/>
+        <result column="alter_after_url" property="alterAfterUrl"/>
+        <result column="method" property="method"/>
+    </resultMap>
+
+    <select id="pageManageDocumentAlter" resultMap="BaseResultMap">
+        select * from (select cmda.*,
+        name createUserName
+        from cnas_manage_document_alter cmda
+        left join user u on cmda.create_user = u.id) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getManageDocumentAlter" resultMap="BaseResultMap">
+        select cmda.*,
+               u1.name createUserName,
+               u2.name checkUserName
+        from cnas_manage_document_alter cmda
+                 left join user u1 on cmda.create_user = u1.id
+                 left join user u2 on cmda.check_user = u2.id
+        where cmda.id = #{id}
+    </select>
+</mapper>

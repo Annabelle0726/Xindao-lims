@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceRecordMapper">
+
+    <select id="deviceRecordPage" resultType="com.ruoyi.device.dto.DeviceRecordDto">
+        select dr.*,
+               d.device_name,
+               d.management_number
+        from device_record dr
+                 left join device d on d.id = dr.device_id
+        where 1=1
+        <if test="deviceId != null">
+            and dr.device_id = #{deviceId}
+        </if>
+        <if test="sampleCode != '' and sampleCode != null">
+            and dr.sample_code like concat('%', #{sampleCode}, '%')
+        </if>
+        <if test="managementNumber != '' and managementNumber != null">
+            and d.management_number like concat('%', #{managementNumber}, '%')
+        </if>
+        <if test="userId != null">
+            and dr.use_person_id = #{userId}
+            and dr.use_start_date is null
+        </if>
+        ORDER BY (dr.use_start_date IS NULL) desc , dr.use_start_date DESC
+    </select>
+
+
+    <select id="selectNotFilled" resultType="com.ruoyi.device.dto.DeviceRecordDto">
+        select dr.*,
+               d.device_name,
+               d.management_number
+        from device_record dr
+                 left join device d on d.id = dr.device_id
+        where dr.use_start_date is null
+    </select>
+
+    <!-- 查询导出设备使用记录 -->
+    <select id="selectExportList" resultType="com.ruoyi.device.dto.DeviceRecordDto">
+        select dr.*
+        from device_record dr
+        where dr.use_start_date is not null
+        <if test="deviceId != null">
+            and dr.device_id = #{deviceId}
+        </if>
+        <if test="exportDate != '' and exportDate != null">
+            and DATE_FORMAT(dr.use_start_date, '%Y-%m') = #{exportDate}
+        </if>
+        ORDER BY dr.use_start_date asc
+    </select>
+</mapper>

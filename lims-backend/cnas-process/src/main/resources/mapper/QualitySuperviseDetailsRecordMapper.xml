@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.QualitySuperviseDetailsRecordMapper">
+
+    <!--导出监督记录表-->
+    <select id="selectSuperviseDetailRecord" resultType="com.ruoyi.process.pojo.QualitySuperviseDetailsRecord">
+        select cqsdr.*
+        from cnas_quality_supervise_details_record cqsdr
+        where cqsdr.supervise_details_id = #{superviseDetailsId}
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+package com.ruoyi.device.mapper;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ruoyi.device.dto.DeviceCalibrationPlanDto;
+import com.ruoyi.device.pojo.DeviceCalibrationPlan;
+import org.apache.ibatis.annotations.Param;
+
+/**
+ * <p>
+ * 设备校准计划主表 Mapper 接口
+ * </p>
+ *
+ * @author 江苏鵷雏网络科技有限公司
+ * @since 2024-12-16 03:58:17
+ */
+public interface DeviceCalibrationPlanMapper extends BaseMapper<DeviceCalibrationPlan> {
+
+    /**
+     * 设备校准计划列表
+     * @param page
+     * @param ew
+     * @return
+     */
+    IPage<DeviceCalibrationPlanDto> pageDeviceCalibrationPlan(Page page, @Param("ew") QueryWrapper<DeviceCalibrationPlan> ew);
+
+}

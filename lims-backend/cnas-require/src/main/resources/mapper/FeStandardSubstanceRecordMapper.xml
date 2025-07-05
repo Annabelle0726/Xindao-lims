@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeStandardSubstanceRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.FeStandardSubstanceRecord">
+        <id column="id" property="id" />
+        <result column="substance_id" property="substanceId" />
+        <result column="integrity" property="integrity" />
+        <result column="borrow_user" property="borrowUser" />
+        <result column="phone" property="phone" />
+        <result column="borrow_date" property="borrowDate" />
+        <result column="return_date" property="returnDate" />
+        <result column="lender" property="lender" />
+        <result column="rummager" property="rummager" />
+        <result column="status" property="status" />
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <select id="getPage" resultType="com.ruoyi.require.vo.SubstanceRecordVo">
+        SELECT
+        ssr.id,
+        ss.name,
+        ss.model,
+        ss.factory_num,
+        ss.quantity,
+        ssr.borrow_user,
+        ssr.borrow_date,
+        ssr.return_date,
+        ssr.integrity,
+        ssr.return_integrity,
+        ssr.returned_person,
+        ss.remark
+        FROM cnas_fe_standard_substance_record ssr
+        LEFT JOIN cnas_fe_standard_substance ss on ss.id = ssr.substance_id
+        <where>
+            <if test="ew.name != null and ew.name != ''">
+                ss.name like CONCAT('%', #{ew.name}, '%')
+            </if>
+            <if test="ew.model != null and ew.model != ''">
+                and ss.model like CONCAT('%', #{ew.model}, '%')
+            </if>
+            <if test="ew.factoryNum != null and ew.factoryNum != ''">
+                and ss.factory_num like CONCAT('%', #{ew.factoryNum}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

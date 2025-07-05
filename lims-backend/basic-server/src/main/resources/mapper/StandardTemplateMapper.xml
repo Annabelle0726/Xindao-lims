@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.StandardTemplateMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.basic.pojo.StandardTemplate">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="thing" column="thing" jdbcType="VARCHAR"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selectStandardTemplatePageList" resultType="com.ruoyi.basic.pojo.StandardTemplate">
+        select * from (
+        select st.id, st.name,st.number, st.remark, u2.name create_user_name, u3.name update_user_name, st.create_time, st.update_time
+        from standard_template st
+        left join user u2 on u2.id = st.create_user
+        left join user u3 on u3.id = st.update_user
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="getStandTempIdByName" resultType="com.ruoyi.basic.pojo.StandardTemplate">
+        select id from standard_template where name=#{name}
+    </select>
+    <!-- 查询压缩后的数据 -->
+    <select id="selectCompressThing" resultType="java.lang.String">
+        SELECT COMPRESS(thing)
+        from standard_template b
+        WHERE id = #{templateId}
+    </select>
+
+    <select id="countBindTemplateItemParameter">
+        SELECT COUNT(*) FROM structure_item_parameter WHERE template_id = #{templateId}
+    </select>
+
+
+</mapper>

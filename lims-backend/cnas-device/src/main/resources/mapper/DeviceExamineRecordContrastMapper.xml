@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceExamineRecordContrastMapper">
+
+    <!-- 查询核查对比记录 -->
+    <select id="getExamineRecordContrast" resultType="com.ruoyi.device.dto.DeviceExamineRecordContrastDto">
+        select derc.*,
+               d1.device_name aDeviceName,
+               d1.management_number aDeviceNumber,
+               d2.device_name bDeviceName,
+               d2.management_number bDeviceNumber,
+               d3.device_name cDeviceName,
+               d3.management_number cDeviceNumber
+        from device_examine_record_contrast derc
+                 left join device d1 on d1.id = derc.a_device_id
+                 left join device d2 on d2.id = derc.a_device_id
+                 left join device d3 on d3.id = derc.a_device_id
+        where derc.plan_details_id = #{planDetailsId}
+    </select>
+    <select id="selectExamineRecordContrastDto"
+            resultType="com.ruoyi.device.dto.DeviceExamineRecordContrastDto">
+        select derc.*,
+               d1.device_name aDeviceName,
+               d1.management_number aDeviceNumber,
+               d2.device_name bDeviceName,
+               d2.management_number bDeviceNumber,
+               d3.device_name cDeviceName,
+               d3.management_number cDeviceNumber,
+               DATE_FORMAT(derc.create_time, '%Y-%m-%d') checkerTimeStr,
+               DATE_FORMAT(derc.review_time, '%Y-%m-%d') reviewTimeStr,
+               d1.storage_point labName
+        from device_examine_record_contrast derc
+                 left join device d1 on d1.id = derc.a_device_id
+                 left join device d2 on d2.id = derc.a_device_id
+                 left join device d3 on d3.id = derc.a_device_id
+        where derc.plan_details_id = #{planDetailsId}
+    </select>
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageRecordAuditMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageRecordAudit">
+        <id column="id" property="id"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="document_name" property="documentName"/>
+        <result column="capter" property="capter"/>
+        <result column="pages" property="pages"/>
+        <result column="number" property="number"/>
+        <result column="before_version" property="beforeVersion"/>
+        <result column="after_version" property="afterVersion"/>
+        <result column="alter_thing" property="alterThing"/>
+        <result column="alter_user" property="alterUser"/>
+        <result column="alterUserName" property="alterUserName"/>
+        <result column="ratify_user" property="ratifyUser"/>
+        <result column="ratifyUserName" property="ratifyUserName"/>
+        <result column="ratifyUserUrl" property="ratifyUserUrl"/>
+        <result column="date" property="date"/>
+        <result column="create_user" property="createUser"/>
+        <result column="createUserName" property="createUserName"/>
+        <result column="createUserDepart" property="createUserDepart"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="reason" property="reason"/>
+        <result column="before_depart" property="beforeDepart"/>
+        <result column="after_depart" property="afterDepart"/>
+        <result column="applicant" property="applicant"/>
+        <result column="formulation" property="formulation"/>
+        <result column="audit" property="audit"/>
+        <result column="method" property="method"/>
+    </resultMap>
+
+    <select id="pageManageRecordAudit" resultMap="BaseResultMap">
+        select * from (select cmra.*,
+        u1.name createUserName,
+        u2.name alterUserName,
+        u3.signature_url ratifyUserUrl,
+        u3.name ratifyUserName
+        from cnas_manage_record_audit cmra
+        left join user u1 on cmra.create_user = u1.id
+        left join user u2 on cmra.alter_user = u2.id
+        left join user u3 on cmra.ratify_user = u3.id)A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

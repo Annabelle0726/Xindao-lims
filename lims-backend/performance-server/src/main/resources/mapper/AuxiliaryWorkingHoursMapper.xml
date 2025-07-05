@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.AuxiliaryWorkingHoursMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.performance.pojo.AuxiliaryWorkingHours">
+        <id column="id" property="id" />
+        <result column="number" property="number"/>
+        <result column="AuxiliaryProject" property="auxiliaryProject" />
+        <result column="approved_working_hour" property="approvedWorkingHour" />
+        <result column="remarks" property="remarks" />
+        <result column="create_user" property="createUser" />
+        <result column="update_user" property="updateUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="department" property="department" />
+        <result column="laboratory" property="laboratory" />
+        <result column="unit" property="unit"/>
+    </resultMap>
+  <select id="selectAuxiliaryWorkingHours" resultType="com.ruoyi.performance.pojo.AuxiliaryWorkingHours">
+      select data.*
+      from (
+      select
+      awh.id,
+      awh.number,
+      awh.auxiliary_project,
+      awh.laboratory,
+      awh.unit,
+      awh.approved_working_hour,
+      awh.department,
+      awh.remarks
+      FROM auxiliary_working_hours awh
+      ) data
+      <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+          ${ew.customSqlSegment}
+      </if>
+  </select>
+
+  <select id="hourDayBindAuxiliaryCount">
+      SELECT
+          COUNT(*)
+      FROM
+          auxiliary_working_hours_day T1
+              LEFT JOIN auxiliary_working_hours T2 ON T1.number = T2.number
+      WHERE T2.id = #{auxiliaryWorkingHoursId}
+  </select>
+</mapper>

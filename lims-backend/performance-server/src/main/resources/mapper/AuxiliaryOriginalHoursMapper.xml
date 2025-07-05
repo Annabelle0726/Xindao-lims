@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.performance.mapper.AuxiliaryOriginalHoursMapper">
+    <select id="totalHours" resultType="java.util.Map">
+        select E.name, E.month, E.total manHours
+        from (select C.name, C.month, C.manHours + D.manHours as total
+        from (select A.name,
+        A.month,
+        FORMAT(SUM(manHour), 4) as manHours
+        from (
+        select user.name,
+        case
+        when reviewer_nonproductive_time is null then nonproductive_time
+        else reviewer_nonproductive_time end as manHour,
+        date_time as month
+        from auxiliary_working_hours_day awhd
+        left join user on user.id = awhd.name_user
+        left join department_lims dl on depart_lims_id = dl.id
+        where date_time LIKE CONCAT('%', #{month}, '%')
+        and awhd.state='已批准'
+        <!--and name_user in(#{ids})-->
+         <if test="ids !=null and ids != ''">
+             and name_user in
+             <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                 #{val}
+             </foreach>
+         </if>
+        order by month
+        ) A
+        group by A.name, A.month) C
+        INNER JOIN
+        (select B.name,
+        B.month,
+        B.manHours
+        from (
+        select user.name,
+        date_time as month,
+        FORMAT(SUM(output_work_time), 4) as manHours
+        from auxiliary_output_working_hours aowh
+        left join user on user.id = aowh.`check`
+        left join department_lims dl on depart_lims_id = dl.id
+        where date_time LIKE CONCAT('%', #{month}, '%')
+        <!--and `check` in(#{ids})-->
+        <if test="ids !=null and ids != ''">
+            and `check` in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        group by user.name, month
+        order by user.name, month
+        ) B
+        group by B.name, B.month) D
+        on C.month = D.month
+        where C.name = D.name
+        ) E
+        group by E.name, E.month
+    </select>
+</mapper>

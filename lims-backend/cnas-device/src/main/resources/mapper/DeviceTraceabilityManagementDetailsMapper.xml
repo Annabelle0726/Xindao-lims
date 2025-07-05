@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceTraceabilityManagementDetailsMapper">
+
+    <select id="deviceTraceabilityManagementDetailsList"
+            resultType="com.ruoyi.device.dto.DeviceTraceabilityManagementDetailsDto">
+        select
+            dtmd.*,
+            d.device_name,
+            d.specification_model,
+            d.management_number
+        from device_traceability_management_details dtmd
+                 left join device d on dtmd.device_id = d.id
+        where dtmd.traceability_management_id = #{traceabilityManagementId}
+    </select>
+
+</mapper>

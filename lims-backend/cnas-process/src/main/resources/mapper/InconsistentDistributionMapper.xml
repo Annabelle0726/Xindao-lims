@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.InconsistentDistributionMapper">
+
+    <!-- 不符合项分页查询 -->
+    <select id="pageInconsistentDistribution" resultType="com.ruoyi.process.dto.InconsistentDistributionDto">
+        select *
+        from (select cid.*,
+                     u1.name create_user_name,
+                     u2.name update_user_name
+              from cnas_inconsistent_distribution cid
+                       left join user u1 on u1.id = cid.create_user
+                       left join user u2 on u2.id = cid.update_user
+              order by cid.create_time desc) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceExternalApplyMapper">
+
+    <!--利用外部设备申请列表-->
+    <select id="pageDeviceExternalApply" resultType="com.ruoyi.device.pojo.DeviceExternalApply">
+        select * from (
+        select *
+        from device_external_apply
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectDeviceExternalById" resultType="com.ruoyi.device.pojo.DeviceExternalApply">
+        select
+            dea.*
+        from device_external_apply dea
+        where dea.external_apply_id = #{externalApplyId}
+    </select>
+
+</mapper>

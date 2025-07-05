@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.system.mapper.UserMapper">
+
+    <!--根据条件获取用户列表-->
+    <select id="selectUserCondition" resultType="com.ruoyi.common.core.domain.entity.User">
+        select * from (select id,
+        dept_id,
+        account,
+        name,
+        name_en,
+        user_type,
+        email,
+        phone,
+        sex,
+        age,
+        signature_url,
+        picture_url,
+        status,
+        del_flag,
+        login_ip,
+        login_date,
+        depart_lims_id,
+        company,
+        is_custom
+        from user
+        where del_flag = '0'
+        and id != 1) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <!-- 获取用户部门 -->
+    <select id="selectUserDepartmentLimsName" resultType="java.lang.String">
+        select dl.name
+        from user u
+                 left join department_lims dl on find_in_set(dl.id, u.depart_lims_id) and dl.id != 1
+        where u.id = #{userId}
+        limit 1
+    </select>
+
+    <!-- 查询用户和部门 -->
+    <select id="selectNameAnddepartment" resultType="java.util.Map">
+        select u.name  userName,
+               dl.name department
+        from user u
+                 left join department_lims dl on find_in_set(dl.id, u.depart_lims_id) and dl.id != 1
+        where find_in_set(u.id, #{participant})
+    </select>
+
+    <!-- 获取当前登录用户信息 -->
+    <select id="getUserNow" resultType="com.ruoyi.system.domain.vo.UserVo">
+        select u.id,
+               c.company,
+               u.name,
+               c.code,
+               u.phone,
+               c.id departId
+        from user u
+                 left join custom c on u.company = c.id
+        where u.id = #{userId}
+    </select>
+
+    <!-- 获取检测人员信息 -->
+    <select id="selectQualityUserList" resultType="com.ruoyi.common.core.domain.entity.User">
+        select u1.id,
+               u1.account,
+               u1.name,
+               u1.age,
+               u1.email,
+               u1.phone,
+               u1.company,
+               u1.is_custom,
+               u1.signature_url,
+               u1.picture_url,
+               u1.name_en,
+               u1.depart_lims_id
+        from user u1
+                 left join sys_user_role sur on sur.user_id = u1.id
+        where sur.role_id not in (1, 15, 16, 17)
+          and u1.status = '0'
+        group by u1.id
+    </select>
+
+    <!-- 获取当前登录用户部门下的所有用户 -->
+    <select id="selectDepartmentLimsUserList" resultType="com.ruoyi.common.core.domain.entity.User">
+        select id,
+               account,
+               name,
+               name_en,
+               status
+        from user u
+        where depart_lims_id is not null
+          and depart_lims_id != ''
+          and depart_lims_id = (select u2.depart_lims_id
+                                from user u2
+                                where u2.id = #{userId})
+    </select>
+
+</mapper>

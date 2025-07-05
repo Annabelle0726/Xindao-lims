@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsProductDeviationWarningMapper">
+
+    <!-- 查看预警列表 -->
+    <select id="selectDeviationWarningPage" resultType="com.ruoyi.inspect.dto.InsProductDeviationWarningDto">
+        select *
+        from (select ipdw.*,
+        isa.sample                                              sample_name,
+        isa.model                                               sample_model,
+        concat(ip.inspection_item, ip.inspection_item_subclass) inspection_item_name
+        from ins_product_deviation_warning ipdw
+        left join ins_sample isa on isa.id = ipdw.ins_sample_id
+        left join ins_product ip On ip.id = ipdw.ins_product_id) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by ipdw.detection_time desc
+    </select>
+
+</mapper>

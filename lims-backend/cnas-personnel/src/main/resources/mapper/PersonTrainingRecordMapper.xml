@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.personnel.mapper.PersonTrainingRecordMapper">
+
+    <select id="trainingAndAssessmentRecordsPage" resultType="com.ruoyi.personnel.dto.PersonTrainingRecordDto">
+        select cptr.*, u.account, u.name user_name, u.phone
+        from cnas_person_training_record cptr
+                 left join user u on u.id = cptr.user_id
+        where cptr.course_id = #{trainingDetailedId}
+        <if test="userName != null and userName != ''">
+            and u.name like concat('%', #{userName}, '%')
+        </if>
+    </select>
+
+    <select id="personnelTrainingPersonnel" resultType="com.ruoyi.personnel.dto.PersonTrainingRecordListDto">
+        select u.name, u.account, dl.name depart_lims_name, cpbi.professional_title,
+        cpbi.official_academic_redentials, u.id user_id
+        from user u
+        left join cnas_person_basic_info cpbi on cpbi.user_id = u.id
+        left join department_lims dl on dl.id = SUBSTRING_INDEX(SUBSTRING_INDEX(u.depart_lims_id, ',', -2), ',', 1)
+        where u.is_custom = 0
+        <if test="userName != '' and userName != null and userName != 'null'">
+            and u.name like concat('%', #{userName}, '%')
+        </if>
+        <if test="userId != null and userId != ''">
+            and u.id = #{userId}
+        </if>
+        <if test="departLimsId != null and departLimsId != ''">
+            and FIND_IN_SET(#{departLimsId}, u.depart_lims_id)
+        </if>
+    </select>
+
+    <select id="queryPersonnelDetails" resultType="com.ruoyi.personnel.dto.TrainingRecordPersonDetailedDto">
+        select cptd.training_date, cptd.training_content, cptd.class_hour, cptr.examination_results, cptd.remarks
+        from cnas_person_training_record cptr
+                 inner join cnas_person_training_detailed cptd on cptd.id = cptr.course_id
+        <where>
+            <if test="userId != null and userId != ''">
+                and cptr.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据详情id查询培训信息 -->
+    <select id="selectListByTrainingDetailedId" resultType="com.ruoyi.personnel.dto.PersonTrainingRecordDto">
+        select cptr.*,
+               u.name  userName,
+               dl.name department,
+               u.signature_url
+        from cnas_person_training_record cptr
+                 left join user u on u.id = cptr.user_id
+                 left join department_lims dl on find_in_set(dl.id, u.depart_lims_id) and dl.id != 1
+        where cptr.course_id = #{trainingDetailedId}
+    </select>
+
+    <!-- 根据id查询人员信息 -->
+    <select id="selectUserTraining" resultType="com.ruoyi.personnel.dto.PersonTrainingRecordListDto">
+        select u.name,
+               u.account,
+               dl.name                                    depart_lims_name,
+               cpbi.professional_title,
+               cpbi.official_academic_redentials,
+               cpbi.major1,
+               u.id                                       user_id,
+               DATE_FORMAT(cpbi.group_time, '%Y-%m-%d') AS unitTimeSting
+        from user u
+                 left join cnas_person_basic_info cpbi on cpbi.user_id = u.id
+                 left join department_lims dl on dl.id = SUBSTRING_INDEX(SUBSTRING_INDEX(u.depart_lims_id, ',', -2), ',', 1)
+        where u.is_custom = 0
+        and u.id = #{userId}
+    </select>
+
+    <!-- 根据用户id查询人员记录 -->
+    <select id="selectPersonDetailedDtos" resultType="com.ruoyi.personnel.dto.TrainingRecordPersonDetailedDto">
+        select cptd.training_date,
+               cptd.training_content,
+               cptd.class_hour,
+               cptr.examination_results,
+               cptd.remarks,
+               DATE_FORMAT(cptd.training_date, '%Y-%m-%d') AS trainingDateString
+        from cnas_person_training_record cptr
+                 inner join cnas_person_training_detailed cptd on cptd.id = cptr.course_id
+            and cptr.user_id = #{userId}
+        <where>
+            <if test="year!= null and year!= ''">
+                and cptd.training_date like concat('%', #{year}, '%')}
+            </if>
+        </where>
+    </select>
+
+    <!--根据用户id和年份查询人员明细 培训记录-->
+    <select id="queryPersonnelDetailsOfUserIdAndYear"
+            resultType="com.ruoyi.personnel.dto.TrainingRecordPersonDetailedDto">
+        select cptd.training_date, cptd.training_content, cptd.class_hour, cptr.examination_results, cptd.remarks
+        from cnas_person_training_record cptr
+        inner join cnas_person_training_detailed cptd on cptd.id = cptr.course_id
+        <where>
+            <if test="userId != null and userId != ''">
+                and cptr.user_id = #{userId}
+            </if>
+            <if test="year!= null and year!= ''">
+                and cptd.training_date like concat('%', #{year}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据用户id和年份查询人员明细 培训记录导出 -->
+    <select id="selectPersonDetailedDtosByTrainingDate"
+            resultType="com.ruoyi.personnel.dto.TrainingRecordPersonDetailedDto">
+        select cptd.training_date,
+        cptd.training_content,
+        cptd.class_hour,
+        cptr.examination_results,
+        cptd.remarks,
+        cptd.training_date AS trainingDateString
+        from cnas_person_training_record cptr
+        inner join cnas_person_training_detailed cptd on cptd.id = cptr.course_id
+        and cptr.user_id = #{userId}
+        <where>
+            <if test="year!= null and year!= ''">
+                and cptd.training_date like concat('%', #{year}, '%')
+            </if>
+        </where>
+        order by STR_TO_DATE(CONCAT(cptd.training_date, '.01'), '%Y.%m.%d')
+
+    </select>
+</mapper>

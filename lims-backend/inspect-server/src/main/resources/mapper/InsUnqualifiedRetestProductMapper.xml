@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.inspect.mapper.InsUnqualifiedRetestProductMapper">
+    <resultMap id="product" type="com.ruoyi.inspect.pojo.InsProduct">
+        <id property="id" column="ip_id" jdbcType="INTEGER"/>
+        <result property="inspectionItem" column="inspection_item" jdbcType="VARCHAR"/>
+        <result property="inspectionItemEn" column="inspection_item_en" jdbcType="VARCHAR"/>
+        <result property="inspectionItemSubclass" column="inspection_item_subclass" jdbcType="VARCHAR"/>
+        <result property="inspectionItemSubclassEn" column="inspection_item_subclass_en" jdbcType="VARCHAR"/>
+        <result property="inspectionItemClass" column="inspection_item_class" jdbcType="VARCHAR"/>
+        <result property="inspectionItemClassEn" column="inspection_item_class_en" jdbcType="VARCHAR"/>
+        <result property="factory" column="ip_factory" jdbcType="VARCHAR"/>
+        <result property="laboratory" column="ip_laboratory" jdbcType="VARCHAR"/>
+        <result property="sampleType" column="ip_sample_type" jdbcType="VARCHAR"/>
+        <result property="sample" column="ip_sample" jdbcType="VARCHAR"/>
+        <result property="model" column="ip_model" jdbcType="VARCHAR"/>
+        <result property="sonLaboratory" column="son_laboratory" jdbcType="VARCHAR"/>
+        <result property="unit" column="ip_unit" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="DECIMAL"/>
+        <result property="manHour" column="man_hour" jdbcType="DOUBLE"/>
+        <result property="manHourGroup" column="man_hour_group" jdbcType="VARCHAR"/>
+        <result property="inspectionItemType" column="inspection_item_type" jdbcType="VARCHAR"/>
+        <result property="inspectionValueType" column="inspection_value_type" jdbcType="VARCHAR"/>
+        <result property="deviceGroup" column="device_group" jdbcType="VARCHAR"/>
+        <result property="checkoutNumber" column="checkout_number" jdbcType="INTEGER"/>
+        <result property="section" column="section" jdbcType="VARCHAR"/>
+        <result property="valueType" column="value_type" jdbcType="VARCHAR"/>
+        <result property="method" column="method" jdbcType="VARCHAR"/>
+        <result property="manDay" column="man_day" jdbcType="INTEGER"/>
+        <result property="bsm" column="bsm" jdbcType="VARCHAR"/>
+        <result property="ask" column="ask" jdbcType="VARCHAR"/>
+        <result property="tell" column="tell" jdbcType="VARCHAR"/>
+        <result property="lastValue" column="last_value" jdbcType="VARCHAR"/>
+        <result property="insResult" column="ip_ins_result" jdbcType="INTEGER"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="insBushId" column="ins_bush_id" jdbcType="INTEGER"/>
+        <result property="insSampleId" column="ins_sample_id" jdbcType="INTEGER"/>
+        <result property="createUser" column="ip_create_user" jdbcType="INTEGER"/>
+        <result property="updateUser" column="ip_update_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="ip_create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="ip_update_time" jdbcType="TIMESTAMP"/>
+        <result property="templateId" column="template_id" jdbcType="INTEGER"/>
+        <result property="methodS" column="method_s"/>
+        <result property="tell" column="tell"/>
+        <result property="dic" column="dic"/>
+        <result property="temperature" column="temperature"/>
+        <result property="humidity" column="humidity"/>
+        <result property="cableTag" column="cable_tag"/>
+        <collection property="insProductResult" resultMap="insProductResult"/>
+    </resultMap>
+
+    <resultMap id="insProductResult" type="com.ruoyi.inspect.pojo.InsProductResult">
+        <result property="insValue" column="ins_value" jdbcType="VARCHAR"/>
+        <result property="comValue" column="com_value" jdbcType="VARCHAR"/>
+        <result property="equipValue" column="equip_value" jdbcType="VARCHAR"/>
+        <result property="equipName" column="equip_name" jdbcType="VARBINARY"/>
+    </resultMap>
+
+       <sql id="getInsProducSql">
+           ip.id          ip_id,
+               inspection_item,
+               inspection_item_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               inspection_item_subclass,
+               inspection_item_subclass_en,
+               ip.factory     ip_factory,
+               ip.laboratory  ip_laboratory,
+               ip.sample_type ip_sample_type,
+               ip.sample      ip_sample,
+               ip.model       ip_model,
+               son_laboratory,
+               ip.unit        ip_unit,
+               price,
+               man_hour,
+               man_hour_group,
+               inspection_item_type,
+               inspection_value_type,
+               device_group,
+               checkout_number,
+               section,
+               value_type,
+               method,
+               man_day,
+               bsm,
+               ask,
+               `last_value`,
+               ip.ins_result  ip_ins_result,
+               state,
+               ins_sample_id,
+               ip.create_user ip_create_user,
+               ip.update_user ip_update_user,
+               ip.create_time ip_create_time,
+               ip.update_time ip_update_time,
+               template_id,
+               ipr.ins_value,
+               ipr.com_value,
+               ipr.equip_value,
+               ipr.equip_name,
+               ip.method_s,
+               ip.tell,
+               ip.dic,
+               ip.sort,
+               ip.cable_tag,
+               ip.structure_item_parameter_id
+       </sql>
+
+    <select id="selectRetestProduct" resultType="com.ruoyi.inspect.pojo.InsUnqualifiedRetestProduct">
+        select id ins_product_id,
+               inspection_item,
+               inspection_item_subclass,
+               factory,
+               laboratory,
+               sample_type,
+               sample,
+               model,
+               son_laboratory,
+               unit,
+               price,
+               man_hour,
+               man_hour_group,
+               '0' inspection_item_type,
+               inspection_value_type,
+               device_group,
+               checkout_number,
+               section,
+               value_type,
+               method,
+               man_day,
+               bsm,
+               ask,
+               tell,
+               state,
+               ins_sample_id,
+               create_user,
+               update_user,
+               create_time,
+               update_time,
+               template_id,
+               dic,
+               method_s,
+               ins_fiber_id,
+               ins_fibers_id,
+               inspection_item_en,
+               inspection_item_subclass_en,
+               inspection_item_class,
+               inspection_item_class_en,
+               standard_method_list_id,
+               temperature,
+               humidity,
+               ins_bush_id,
+               radius,
+               cable_tag,
+               raw_material_tag,
+               sort,
+               '1' retest_tag
+        from ins_product
+        where id in
+        <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+       <select id="getInsProductUnqualifiedRetest1" resultMap="product">
+              select <include refid="getInsProducSql"/>
+              from ins_unqualified_retest_product ip
+              left join ins_unqualified_retest_result ipr on ip.id = ipr.retest_product_id
+           where ins_sample_id = #{id}
+           and state = 1
+           and ip.son_laboratory = #{laboratory}
+           and ins_fiber_id is null
+           and ins_fibers_id is null
+           and standard_method_list_id is not null
+           /* 电缆配置标识 */
+           <if test="cableTag == null or cableTag == ''">
+               and ip.cable_tag is null
+           </if>
+           <if test="cableTag != null and cableTag != ''">
+               and ip.cable_tag = #{cableTag}
+           </if>
+           /* 重复值标识 */
+           <if test="repetitionTag == null or repetitionTag == ''">
+               and ip.repetition_tag is null
+           </if>
+           <if test="repetitionTag != null and repetitionTag != ''">
+               and ip.repetition_tag = #{repetitionTag}
+           </if>
+           and ip.retest_tag = #{retestTag}
+           order by sort asc
+       </select>
+
+       <select id="getInsProductUnqualifiedRetest6" resultMap="product">
+           select <include refid="getInsProducSql"/>
+           from ins_unqualified_retest_product ip
+           left join ins_unqualified_retest_result ipr on ip.id = ipr.retest_product_id
+           where ins_sample_id = #{id}
+           and state = 1
+           and ip.son_laboratory = #{laboratory}
+           and ins_fiber_id is null
+           and ins_fibers_id is null
+           and standard_method_list_id is not null
+           and ip.raw_material_tag = #{rawMaterialTag}
+           and ip.retest_tag = #{retestTag}
+           order by sort asc
+       </select>
+</mapper>

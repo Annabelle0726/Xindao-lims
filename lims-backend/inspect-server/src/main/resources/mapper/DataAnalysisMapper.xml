@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.inspect.mapper.DataAnalysisMapper">
+    <!-- 获取本周的原材料信息 -->
+    <select id="getRawPassRateByBarChartByWeek" resultType="java.util.Map">
+        WITH RECURSIVE AllWeeks AS (SELECT 1 AS week
+                                     UNION ALL
+                                     SELECT week + 1
+                                     FROM AllWeeks
+                                     WHERE week &lt; 7)
+        SELECT COALESCE(sub.sum, 0)      AS sum,
+               CASE am.week
+                   WHEN 1 THEN '星期日'
+                   WHEN 2 THEN '星期一'
+                   WHEN 3 THEN '星期二'
+                   WHEN 4 THEN '星期三'
+                   WHEN 5 THEN '星期四'
+                   WHEN 6 THEN '星期五'
+                   WHEN 7 THEN '星期六'
+                END                   AS searchTime,
+               COALESCE(sub.passRate, 0) AS passRate
+        FROM AllWeeks am
+                 LEFT JOIN (select COUNT(*)                 sum,
+                                   DAYOFWEEK(io1.send_time) searchTime,
+                                   ROUND((COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END)) / COUNT(*) *
+                                         100,
+                                         2)                 passRate
+                            from ifs_inventory_quantity iiq
+                                     LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+                                and io1.order_type = #{dto.orderType}
+                                and io1.state != -1
+                                     left join (select is2.ins_order_id,
+                                                       is2.sample_type,
+                                                       is2.model,
+                                                       is2.sample
+                                                from ins_sample is2
+                                                group by is2.ins_order_id) ins on ins.ins_order_id = io1.id
+                            where iiq.is_finish = 1
+                              and iiq.inspect_status not in (0, 3)
+                              and (io1.send_time between #{dto.beginDate} and #{dto.endDate})
+        <if test="dto.sampleName != null and dto.sampleName != ''">
+            and ins.sample like concat('%', #{dto.sampleName}, '%')
+        </if>
+        <if test="dto.modelName != null and dto.modelName != ''">
+            and ins.model like concat('%', #{dto.modelName}, '%')
+        </if>
+        <if test="dto.supplierName != null and dto.supplierName != ''">
+            and iiq.supplier_name like concat('%', #{dto.supplierName}, '%')
+        </if>
+                            GROUP BY DAYOFWEEK(io1.send_time)
+                            having searchTime is not null) sub ON am.week = sub.searchTime
+        WHERE am.week BETWEEN 1 AND 7
+        ORDER BY am.week
+    </select>
+
+    <!-- 获取本月的原材料信息 -->
+    <select id="getRawPassRateByBarChartByDay" resultType="java.util.Map">
+        select COUNT(*)                         sum,
+               DATE_FORMAT(io1.send_time, '%Y-%m-%d') searchTime,
+               ROUND((COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END)) / COUNT(*) * 100,
+                     2)                         passRate
+        from ifs_inventory_quantity iiq
+                 LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+            and io1.order_type = #{dto.orderType}
+            and io1.state != -1
+                 left join (select is2.ins_order_id,
+                                   is2.sample_type,
+                                   is2.model,
+                                   is2.sample
+                            from ins_sample is2
+                            group by is2.ins_order_id) ins on ins.ins_order_id = io1.id
+        where iiq.is_finish = 1
+          and iiq.inspect_status not in (0, 3)
+        and (io1.send_time between #{dto.beginDate} and #{dto.endDate})
+        <if test="dto.sampleName != null and dto.sampleName != ''">
+            and ins.sample like concat('%', #{dto.sampleName}, '%')
+        </if>
+        <if test="dto.modelName != null and dto.modelName != ''">
+            and ins.model like concat('%', #{dto.modelName}, '%')
+        </if>
+        <if test="dto.supplierName != null and dto.supplierName != ''">
+            and iiq.supplier_name like concat('%', #{dto.supplierName}, '%')
+        </if>
+        GROUP BY DATE_FORMAT(io1.send_time, '%Y-%m-%d')
+        having searchTime is not null
+        order by searchTime
+    </select>
+
+    <!-- 获取本年的原材料信息 -->
+    <select id="getRawPassRateByBarChartByYear" resultType="java.util.Map">
+        WITH RECURSIVE AllMonths AS (SELECT 1 AS month
+                                     UNION ALL
+                                     SELECT month + 1
+                                     FROM AllMonths
+                                     WHERE month &lt; 12)
+        SELECT COALESCE(sub.sum, 0)      AS sum,
+               CASE am.month
+                   WHEN 1 THEN '1月'
+                   WHEN 2 THEN '2月'
+                   WHEN 3 THEN '3月'
+                   WHEN 4 THEN '4月'
+                   WHEN 5 THEN '5月'
+                   WHEN 6 THEN '6月'
+                   WHEN 7 THEN '7月'
+                   WHEN 8 THEN '8月'
+                   WHEN 9 THEN '9月'
+                   WHEN 10 THEN '10月'
+                   WHEN 11 THEN '11月'
+                   WHEN 12 THEN '12月'
+                END                   AS searchTime,
+               COALESCE(sub.passRate, 0) AS passRate
+        FROM AllMonths am
+                 LEFT JOIN (select COUNT(*)                         sum,
+                                   DATE_FORMAT(io1.send_time, '%m') searchTime,
+                                   ROUND((COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END)) /
+                                         COUNT(*) * 100,
+                                         2)                         passRate
+                            from ifs_inventory_quantity iiq
+                                     LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+                                and io1.order_type = #{dto.orderType}
+                                and io1.state != -1
+                                     left join (select is2.ins_order_id,
+                                                       is2.sample_type,
+                                                       is2.model,
+                                                       is2.sample
+                                                from ins_sample is2
+                                                group by is2.ins_order_id) ins on ins.ins_order_id = io1.id
+                            where iiq.is_finish = 1
+                              and iiq.inspect_status not in (0, 3)
+                              and (io1.send_time between #{dto.beginDate} and #{dto.endDate})
+        <if test="dto.sampleName != null and dto.sampleName != ''">
+            and ins.sample like concat('%', #{dto.sampleName}, '%')
+        </if>
+        <if test="dto.modelName != null and dto.modelName != ''">
+            and ins.model like concat('%', #{dto.modelName}, '%')
+        </if>
+        <if test="dto.supplierName != null and dto.supplierName != ''">
+            and iiq.supplier_name like concat('%', #{dto.supplierName}, '%')
+        </if>
+                            GROUP BY DATE_FORMAT(io1.send_time, '%Y-%m')
+                            having searchTime is not null) sub ON am.month = sub.searchTime
+        WHERE am.month BETWEEN 1 AND 12
+        ORDER BY am.month
+    </select>
+
+    <!-- 查看原材料饼状图 -->
+    <select id="getRawPassRateByCake" resultType="java.util.Map">
+        select COUNT(*)                                                                                             sum,
+               (COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END))                               qualified,
+               (COUNT(*) - SUM(CASE WHEN inspect_status = 1 THEN 1 ELSE 0 END))                                     unQualified,
+               ROUND((COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END)) / COUNT(*) * 100,
+                     2) AS passRate
+        from ifs_inventory_quantity iiq
+                 LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+            and io1.order_type = #{dto.orderType}
+            and io1.state != -1
+                 left join (select is2.ins_order_id,
+                                   is2.sample_type,
+                                   is2.model,
+                                   is2.sample
+                            from ins_sample is2
+                            group by is2.ins_order_id) ins on ins.ins_order_id = io1.id
+        where iiq.is_finish = 1
+          and iiq.inspect_status not in (0, 3)
+          and (io1.send_time between #{dto.beginDate} and #{dto.endDate})
+        <if test="dto.sampleName != null and dto.sampleName != ''">
+            and ins.sample like concat('%', #{dto.sampleName}, '%')
+        </if>
+        <if test="dto.modelName != null and dto.modelName != ''">
+            and ins.model like concat('%', #{dto.modelName}, '%')
+        </if>
+        <if test="dto.supplierName != null and dto.supplierName != ''">
+            and iiq.supplier_name like concat('%', #{dto.supplierName}, '%')
+        </if>
+    </select>
+
+    <select id="getRawProductAnalysisAllSample" resultType="com.ruoyi.basic.dto.IfsInventoryQuantitySupplierDto">
+        select iiq.*,
+               io1.entrust_code,
+               io1.id     enter_order_id,
+               ins.id     sample_id,
+               ins.sample_type,
+               ins.sample sample_name,
+               ins.model  sample_model,
+               io1.send_time
+        from ifs_inventory_quantity iiq
+                 LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+            and io1.order_type = #{dto.orderType}
+            and io1.state != -1
+                 left join ins_sample  ins on ins.ins_order_id = io1.id
+        where iiq.is_finish = 1
+          and iiq.inspect_status not in (0, 3)
+        <if test="dto.beginDate != null and dto.beginDate != '' and dto.endDate != null and dto.endDate != ''">
+            and (io1.send_time between #{dto.beginDate} and #{dto.endDate})
+        </if>
+        <if test="dto.sampleName != null and dto.sampleName != ''">
+            and ins.sample like concat('%', #{dto.sampleName}, '%')
+        </if>
+        <if test="dto.modelName != null and dto.modelName != ''">
+            and ins.model like concat('%', #{dto.modelName}, '%')
+        </if>
+        <if test="dto.supplierName != null and dto.supplierName != ''">
+            and iiq.supplier_name like concat('%', #{dto.supplierName}, '%')
+        </if>
+    </select>
+
+    <!-- 查询检测项集合 -->
+    <select id="getRawProductAnalysisList" resultType="com.ruoyi.basic.dto.IfsInventoryQuantitySupplierDto">
+        select iiq.*,
+               io1.entrust_code,
+               io1.id     enter_order_id,
+               ins.id     sample_id,
+               ins.sample_type,
+               ins.sample sample_name,
+               ins.model  sample_model,
+               u.name     user_name,
+               io1.send_time
+        from ifs_inventory_quantity iiq
+                 LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+            and io1.order_type = #{dto.orderType}
+            and io1.state != -1
+                 left join user u on io1.create_user = u.id
+                 left join (select is2.ins_order_id,
+                                   is2.sample_type,
+                                   is2.sample_code,
+                                   is2.model,
+                                   is2.sample,
+                                   is2.id
+                            from ins_sample is2
+                            group by is2.ins_order_id) ins on ins.ins_order_id = io1.id
+        where iiq.is_finish = 1
+          and iiq.inspect_status not in (0, 3)
+        <if test="dto.beginDate != null and dto.beginDate != '' and dto.endDate != null and dto.endDate != ''">
+            and (io1.send_time between #{dto.beginDate} and #{dto.endDate})
+        </if>
+        <if test="dto.sampleName != null and dto.sampleName != ''">
+            and ins.sample like concat('%', #{dto.sampleName}, '%')
+        </if>
+        <if test="dto.modelName != null and dto.modelName != ''">
+            and ins.model like concat('%', #{dto.modelName}, '%')
+        </if>
+        <if test="dto.supplierName != null and dto.supplierName != ''">
+            and iiq.supplier_name like concat('%', #{dto.supplierName}, '%')
+        </if>
+    </select>
+    <select id="getItemValueByOrderIds" resultType="com.ruoyi.inspect.vo.RawMaterialSupplierVo">
+        select io2.id                   orderId,
+               io2.entrust_code,
+               ins.sample,
+               ins.model,
+               iiq.supplier_name,
+               (select ip.`last_value`
+                from ins_product ip
+                where concat(ip.inspection_item, ip.inspection_item_subclass) = #{itemName}
+                  and ip.ins_sample_id = ins.id
+                limit 1) lastValue
+        from ins_order io2
+                 left join ifs_inventory_quantity iiq on io2.ifs_inventory_id = iiq.id
+                 left join (select is2.ins_order_id,
+                                   is2.sample_type,
+                                   is2.sample_code,
+                                   is2.model,
+                                   is2.sample,
+                                   is2.id
+                            from ins_sample is2
+                            group by is2.ins_order_id) ins on ins.ins_order_id = io2.id
+        where io2.id in
+        <foreach collection="insOrderIds" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+
+    <!-- 查询本月与上月合格率对比 -->
+    <select id="getRawUpMonth" resultType="java.util.Map">
+        select DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m') as month,
+               (select ROUND((COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END)) / COUNT(*) *
+                             100,
+                             2) passRate
+                from ifs_inventory_quantity iiq
+                         LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+                    and io1.order_type = '进厂检验'
+                    and io1.state != -1
+                where iiq.is_finish = 1
+                  and iiq.inspect_status not in (0, 3)
+                  and (io1.send_time between DATE_FORMAT(DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01'), INTERVAL 1 MONTH), '%Y-%m-%d %H:%i:%s')
+                    and DATE_FORMAT(LAST_DAY(DATE_SUB(NOW(), INTERVAL 1 MONTH)), '%Y-%m-%d 23:59:59'))) passRate
+        UNION ALL
+        select DATE_FORMAT(CURRENT_DATE, '%Y-%m') as month,
+               (select ROUND((COUNT(*) - SUM(CASE WHEN inspect_status in (2, 4) THEN 1 ELSE 0 END)) / COUNT(*) *
+                             100,
+                             2) passRate
+                from ifs_inventory_quantity iiq
+                         LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+                    and io1.order_type = '进厂检验'
+                    and io1.state != -1
+                where iiq.is_finish = 1
+                  and iiq.inspect_status not in (0, 3)
+                  and (io1.send_time between
+                    DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL -DAY(CURDATE()) + 1 DAY), '%Y-%m-%d 00:00:00')
+                    and DATE_FORMAT(LAST_DAY(CURDATE()), '%Y-%m-%d 23:59:59'))) passRate
+    </select>
+
+    <!-- 查询本月检验类型 -->
+    <select id="getOrderTypeCookie" resultType="java.util.Map">
+        select sum(order_type = '抽检')                  spotCheck,
+               sum(order_type = 'Customer-ordered test') customer,
+               sum(order_type = '进厂检验')              enter,
+               sum(order_type = 'Quarterly inspection')  quarterly
+        from ins_order
+        where state != -1
+          and (send_time between DATE_FORMAT(LAST_DAY(NOW() - INTERVAL 1 MONTH) + INTERVAL 1 DAY,
+                                             '%Y-%m-%d 00:00:00') and DATE_FORMAT(LAST_DAY(NOW()), '%Y-%m-%d 23:59:59'))
+
+    </select>
+</mapper>

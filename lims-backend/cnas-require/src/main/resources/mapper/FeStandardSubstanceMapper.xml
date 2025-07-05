@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeStandardSubstanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.FeStandardSubstance">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="model" property="model" />
+        <result column="factory_manufacturer" property="factoryManufacturer" />
+        <result column="factory_num" property="factoryNum" />
+        <result column="manage_num" property="manageNum" />
+        <result column="uncertainty" property="uncertainty" />
+        <result column="quantity" property="quantity" />
+        <result column="acquisition_date" property="acquisitionDate" />
+        <result column="effective_date" property="effectiveDate" />
+        <result column="file_num" property="fileNum" />
+        <result column="position" property="position" />
+        <result column="state" property="state" />
+        <result column="remark" property="remark" />
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <select id="getPage" resultType="com.ruoyi.require.pojo.FeStandardSubstance">
+        select * from cnas_fe_standard_substance
+        <where>
+            <if test="ew.name != null and ew.name != ''">
+                name like CONCAT('%', #{ew.name}, '%')
+            </if>
+            <if test="ew.factoryManufacturer != null and ew.factoryManufacturer != ''">
+                and factory_manufacturer like CONCAT('%', #{ew.factoryManufacturer}, '%')
+            </if>
+            <if test="ew.factoryNum != null and ew.factoryNum != ''">
+                and factory_num like CONCAT('%', #{factoryNum}, '%')
+            </if>
+            <if test="ew.manageNum != null and ew.manageNum != ''">
+                and manage_num like CONCAT('%', #{ew.manageNum}, '%')
+            </if>
+            <if test="ew.model != null and ew.model != ''">
+                and model like CONCAT('%', #{ew.model}, '%')
+            </if>
+            <if test="ew.effectiveDate != null and ew.effectiveDate != ''">
+                and effective_date =  #{ew.effectiveDate}
+            </if>
+            <if test="ew.fileNum != null and ew.fileNum != ''">
+                and file_num like CONCAT('%', #{ew.fileNum}, '%')
+            </if>
+            <if test="ew.position != null and ew.position != ''">
+                and position like CONCAT('%', #{ew.position}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

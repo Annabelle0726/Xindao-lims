@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.require.mapper.ProcurementSuppliesStoreMapper">
+    <resultMap id="map" type="com.ruoyi.require.dto.StoreDto">
+        <id column="id" property="id"/>
+        <result column="consumables_id" property="consumablesId"/>
+        <result column="odd_numbers" property="oddNumbers"/>
+        <result column="consumables_name" property="consumablesName"/>
+        <result column="store_number" property="storeNumber"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="storage_user" property="storageUser"/>
+        <result column="storage_time" property="storageTime"/>
+        <result column="remark" property="remark"/>
+        <result column="registrant" property="registrant"/>
+        <result column="registrant_time" property="registrantTime"/>
+        <result column="storageUserName" property="storageUserName"/>
+        <result column="registrantName" property="registrantName"/>
+    </resultMap>
+
+    <resultMap id="storeExcelMap" type="com.ruoyi.require.excel.StoreExcel">
+        <result column="odd_numbers" property="oddNumbers"/>
+        <result column="consumables_name" property="consumablesName"/>
+        <result column="store_number" property="storeNumber"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="storage_time" property="storageTime"/>
+        <result column="remark" property="remark"/>
+        <result column="registrant_time" property="registrantTime"/>
+        <result column="storageUserName" property="storageUserName"/>
+        <result column="registrantName" property="registrantName"/>
+    </resultMap>
+
+
+    <select id="selectStoreList" resultMap="map">
+select * from (
+        SELECT
+        s.id,
+        c.id AS consumables_id,
+        s.contents_id,
+        s.odd_numbers,
+        c.consumables_name,
+        c.store_number,
+        c.total_price,
+        s.storage_user,
+        s.storage_time,
+        s.remark,
+        s.registrant,
+        s.registrant_time,
+        u.name AS storageUserName,
+        u1.name AS registrantName
+        FROM
+        `procurement_supplies_store` s
+        LEFT JOIN procurement_supplies_consumables c ON s.id = c.store_id
+        LEFT JOIN user u ON u.id = s.storage_user
+        LEFT JOIN user u1 ON u1.id = s.registrant
+        )a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="exportExcel" resultMap="storeExcelMap">
+        SELECT * FROM (
+                          SELECT
+                              s.odd_numbers,
+                              c.consumables_name,
+                              c.store_number,
+                              c.total_price,
+                              s.storage_time,
+                              s.remark,
+                              s.registrant_time,
+                              u.name AS storageUserName,
+                              u1.name AS registrantName
+                          FROM
+                              `procurement_supplies_store` s
+                                  LEFT JOIN procurement_supplies_consumables c ON s.id = c.store_id
+                                  LEFT JOIN user u ON u.id = s.storage_user
+                                  LEFT JOIN user u1 ON u1.id = s.registrant
+
+                      ) a
+    </select>
+
+
+
+</mapper>

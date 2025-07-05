@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsOrderMapper">
+
+    <resultMap id="selectSampleDefectsMap" type="com.ruoyi.inspect.vo.SampleDefectsFatherVo">
+        <id column="id" property="id"/>
+        <result column="sample" property="sample"/>
+        <association property="children" resultMap="SampleDefectsChildrenMap" javaType="java.util.List"/>
+    </resultMap>
+
+    <resultMap id="SampleDefectsChildrenMap" type="com.ruoyi.inspect.vo.SampleDefectsChildrenVo">
+        <result column="entrust_code" property="entrust_code"/>
+        <result column="inspection_item" property="inspection_item"/>
+        <result column="name" property="name"/>
+        <result column="create_time" property="create_time"/>
+    </resultMap>
+
+    <sql id="selectSampleProductDto2">
+        i.id,
+        isa.sample_code,
+        isa.sample,
+        isa.model,
+        isa.ins_state,
+        ip.id insProductId,
+        ip.state,
+        ip.unit,
+        ip.inspection_item_class,
+        ip.inspection_item_class_en,
+        ip.inspection_item,
+        ip.inspection_item_en,
+        ip.inspection_item_subclass,
+        ip.inspection_item_subclass_en,
+        ip.son_laboratory,
+        ip.inspection_item_type,
+        ip.inspection_value_type,
+        ip.ask,
+        ip.tell,
+        ip.`last_value`,
+        ip.ins_result,
+        ip.radius,
+        isa.quantity,
+        ip.sort,
+        ip.cable_tag
+    </sql>
+
+    <sql id="selectInsOrderExport">
+        SELECT
+            io.*,
+            isau.user_id assign,
+            ir.id report_id,
+            ir.url,
+            ir.url_s,
+            sample_counts.sample_num,
+            CONCAT(ROUND(approved_product_counts.approved_count / total_product_counts.total_count * 100, 2), '%') AS insProgress,
+            io.sample_view AS sample_name,
+            GROUP_CONCAT(DISTINCT isa.model SEPARATOR ' ') AS sample_model,
+            u.name,
+            testing_name,
+            case when io.type = 0 then '普通'
+                 when io.type = 1 then '优先'
+                 when io.type = 2 then '紧急'
+                end typeString,
+            case when io.ins_result = 1 then '合格'
+                 when io.ins_result = 0 then '不合格'
+                 else '待检验' end insResultString
+        FROM
+            ins_order io
+                LEFT JOIN
+            ins_sample isa ON io.id = isa.ins_order_id
+                LEFT JOIN
+            ins_sample_user isau ON isau.ins_sample_id = io.id
+                LEFT JOIN
+            (SELECT id, ins_order_id, is_ratify, url, url_s FROM ins_report WHERE is_ratify = 1) ir ON io.id = ir.ins_order_id
+                LEFT JOIN
+            user u ON io.create_user = u.id
+                LEFT JOIN
+            (SELECT ins_order_id, COUNT(*) AS sample_num
+             FROM ins_sample
+             WHERE id in(select id1 from (select is2.id id1 ,ip.id from ins_sample is2 left join ins_product ip on is2.id = ip.ins_sample_id where ip.id is not null)s )
+             GROUP BY ins_order_id) sample_counts ON io.id = sample_counts.ins_order_id
+                LEFT JOIN
+            (SELECT ins_sample.ins_order_id, COUNT(*) AS total_count
+             FROM ins_product
+                      JOIN ins_sample ON ins_product.ins_sample_id = ins_sample.id
+             WHERE ins_product.state = 1
+             GROUP BY ins_sample.ins_order_id) total_product_counts ON io.id = total_product_counts.ins_order_id
+                LEFT JOIN
+            (SELECT ins_sample.ins_order_id, COUNT(*) AS approved_count
+             FROM ins_product
+                      JOIN ins_sample ON ins_product.ins_sample_id = ins_sample.id
+             WHERE ins_product.state = 1 AND ins_product.ins_result IS NOT NULL
+             GROUP BY ins_sample.ins_order_id) approved_product_counts ON io.id = approved_product_counts.ins_order_id
+                LEFT JOIN (SELECT ins_sample_id, GROUP_CONCAT(DISTINCT uu.name SEPARATOR ',') AS testing_name
+                           FROM ins_sample_user u
+                                    LEFT JOIN user uu ON u.user_id = uu.id
+                           WHERE u.state = 0
+                           GROUP BY ins_sample_id
+                           ORDER BY ins_sample_id) isu ON isu.ins_sample_id = io.id
+    </sql>
+
+    <select id="selectInsOrderPage" resultType="com.ruoyi.inspect.dto.SampleOrderDto">
+        select *
+        from (
+        SELECT
+        io.*,
+        isau.user_id assign,
+        ir.id report_id,
+        ir.url,
+        ir.url_s,
+        sample_counts.sample_num,
+        CONCAT(ROUND(approved_product_counts.approved_count / total_product_counts.total_count * 100, 2), '%') AS insProgress,
+        io.sample_view AS sample_name,
+        GROUP_CONCAT(DISTINCT isa.model SEPARATOR ' ') AS sample_model,
+        u.name,
+        testing_name,
+        ip.son_laboratory
+        FROM
+        ins_order io
+        LEFT JOIN
+        ins_sample isa ON io.id = isa.ins_order_id
+        left join ins_product ip on ip.ins_sample_id = isa.id
+        LEFT JOIN
+        ins_sample_user isau ON isau.ins_sample_id = io.id
+        LEFT JOIN
+        (SELECT id, ins_order_id, is_ratify, url, url_s FROM ins_report WHERE is_ratify = 1) ir ON io.id = ir.ins_order_id
+        LEFT JOIN
+        user u ON io.create_user = u.id
+        LEFT JOIN
+        (SELECT ins_order_id, COUNT(*) AS sample_num
+        FROM ins_sample
+        WHERE id in(select id1 from (select is2.id id1 ,ip.id from ins_sample is2 left join ins_product ip on is2.id = ip.ins_sample_id where ip.id is not null)s )
+        GROUP BY ins_order_id) sample_counts ON io.id = sample_counts.ins_order_id
+        LEFT JOIN
+        (SELECT ins_sample.ins_order_id, COUNT(*) AS total_count
+        FROM ins_product
+        JOIN ins_sample ON ins_product.ins_sample_id = ins_sample.id
+        WHERE ins_product.state = 1
+        GROUP BY ins_sample.ins_order_id) total_product_counts ON io.id = total_product_counts.ins_order_id
+        LEFT JOIN
+        (SELECT ins_sample.ins_order_id, COUNT(*) AS approved_count
+        FROM ins_product
+        JOIN ins_sample ON ins_product.ins_sample_id = ins_sample.id
+        WHERE ins_product.state = 1 AND ins_product.ins_result IS NOT NULL
+        GROUP BY ins_sample.ins_order_id) approved_product_counts ON io.id = approved_product_counts.ins_order_id
+        LEFT JOIN (SELECT ins_sample_id, GROUP_CONCAT(DISTINCT uu.name SEPARATOR ',') AS testing_name
+        FROM ins_sample_user u
+        LEFT JOIN user uu ON u.user_id = uu.id
+        WHERE u.state = 0
+        GROUP BY ins_sample_id
+        ORDER BY ins_sample_id) isu ON isu.ins_sample_id = io.id
+        where (io.ifs_inventory_id IS NULL OR TRIM(io.ifs_inventory_id)  = '')
+        <if test="isOrderAll != null and isOrderAll != ''">
+            AND io.state in (1, 4)
+        </if>
+        <if test="laboratory!=null and laboratory!=''">
+            AND io.laboratory=#{laboratory}
+        </if>
+        GROUP BY io.id,type
+        order by type desc,io.id desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="selectInsOrderParameter" resultType="com.ruoyi.inspect.pojo.InsOrder">
+        select *
+        from (
+        select
+        id,
+        appointed,
+        user_id,
+        create_user,
+        otc_code,
+        code,
+        custom,
+        update_user,
+        update_time,
+        type,
+        entrust_code,
+        company,
+        remark,
+        create_time,
+        state
+        from ins_order
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="getLaboratoryCode" resultType="java.lang.String">
+        select laboratory_number
+        from laboratory
+        where laboratory_name = #{name}
+    </select>
+    <select id="selectSampleAndProductByOrderId" resultType="com.ruoyi.inspect.dto.SampleProductDto2">
+        select *
+        from (
+        select
+        i.id,
+        isa.sample_code,
+        isa.sample,
+        isa.model,
+        isa.ins_state,
+        ip.id insProductId,
+        ip.state,
+        ip.unit,
+        ip.inspection_item,
+        ip.inspection_item_subclass,
+        ip.son_laboratory,
+        ip.inspection_item_type,
+        ip.inspection_value_type,
+        ip.tell,
+        ip.ask,
+        ip.`last_value`,
+        ip.ins_result,
+        ip.inspection_item_class,
+        i.ifs_inventory_id,
+        i.order_type,
+        ip.sort,
+        ip.cable_tag,
+        ip.radius
+        from ins_sample isa
+        left join ins_order i on isa.ins_order_id = i.id
+        left join ins_product ip on isa.id = ip.ins_sample_id
+        where ip.state = 1
+        and i.id=#{id}
+        and ip.is_binding != 1
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="selectDeviceList" resultType="java.util.Map">
+        select device_name,
+               en_device_name,
+               specification_model,
+               management_number,
+               date_format(activation_date,'%Y-%m-%d')
+        latest_traceability
+        from device
+        where device.management_number in
+        <foreach collection="managementNumbers" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+
+    <update id="updateStatus">
+        update ins_order
+        set state=3
+        where id = #{id}
+    </update>
+
+    <select id="selectSampleDefects" resultMap="selectSampleDefectsMap">
+        SELECT io.entrust_code,sam.sample,ip.inspection_item,u.name,b.create_time, sam.id
+        from ins_order io
+        left JOIN ins_sample sam on io.id=sam.ins_order_id
+        LEFT JOIN ins_product ip on ip.ins_sample_id=sam.id
+        LEFT JOIN
+        (SELECT create_time,create_user,ins_product_id FROM
+        (select * FROM ins_product_user ORDER BY ins_product_user.create_time DESC) a
+        GROUP BY a.ins_product_id) b
+        on b.ins_product_id=ip.id
+        left JOIN `user` u on u.id=b.create_user
+        WHERE (ip.ins_result=0 OR ip.state=0)
+        <if test="inspectionItems != null and inspectionItems != ''">
+            and inspection_item like concat('%', #{inspectionItems}, '%')
+        </if>
+        <if test="orderNumber != null and orderNumber != ''">
+            and io.entrust_code like concat('%', #{orderNumber}, '%')
+        </if>
+    </select>
+
+    <select id="getStandardMethodCode" resultType="java.lang.String">
+        select code
+        from standard_method
+        where id = #{id}
+    </select>
+    <select id="selLaboratoryCode" resultType="java.lang.String">
+        select laboratory_code
+        from laboratory
+        where laboratory_name = #{laboratory}
+    </select>
+    <select id="selectReportModelByOrderId" resultType="java.util.Map">
+        select distinct id, name
+        from standard_template
+        where id in (select template_id
+                     from ins_product
+                     where son_laboratory = #{laboratory}
+                       and ins_sample_id in
+                           (select id from ins_sample where ins_order_id = #{id}))
+    </select>
+
+    <select id="seldepLimsId" resultType="java.lang.String">
+        select name
+        from department_lims
+        where id = #{depLimsId}
+    </select>
+    <select id="selectSampleBySampleId" resultType="com.ruoyi.inspect.dto.SampleProductExportDto">
+        select <include refid="selectSampleProductDto2"/>
+        from ins_sample isa
+                 left join ins_order i on isa.ins_order_id = i.id
+                 left join ins_product ip on isa.id = ip.ins_sample_id
+        where ip.state = 1
+          and ip.is_binding != 1
+          and isa.id in
+        <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+        order by ip.sort asc
+    </select>
+    <select id="selectSampleMax" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ins_sample isa
+                 LEFT JOIN ins_order i ON isa.ins_order_id = i.id
+                 LEFT JOIN ins_product ip ON isa.id = ip.ins_sample_id
+        WHERE ip.state = 1
+          AND isa.id = #{id}
+          and ip.is_binding != 1
+        GROUP BY ip.inspection_item,
+                 ip.inspection_item_subclass,
+                 ip.inspection_item_class
+        ORDER BY COUNT(*) DESC
+        LIMIT 1;
+    </select>
+    <select id="selectSampleCableTag" resultType="java.lang.String">
+        SELECT ip.cable_tag
+        FROM ins_sample isa
+                 LEFT JOIN ins_order i ON isa.ins_order_id = i.id
+                 LEFT JOIN ins_product ip ON isa.id = ip.ins_sample_id
+        WHERE ip.state = 1
+          AND isa.id = #{id}
+          and ip.cable_tag is not null
+        GROUP BY ip.cable_tag
+        order by ip.cable_tag
+    </select>
+    <select id="selectSampleItemS" resultType="java.lang.Integer">
+        select count(*)
+        from (select distinct ip.inspection_item
+              from  ins_sample isa
+                        left join ins_order i on isa.ins_order_id = i.id
+                        left join ins_product ip on isa.id = ip.ins_sample_id
+              where ip.state = 1
+                and i.id = #{id}) a
+    </select>
+    <select id="selectSampleBySampleIdOne" resultType="com.ruoyi.inspect.dto.SampleProductExportDto">
+        select <include refid="selectSampleProductDto2"/>
+        from ins_sample isa
+        left join ins_order i on isa.ins_order_id = i.id
+        left join ins_product ip on isa.id = ip.ins_sample_id
+        where ip.state = 1
+        and isa.id = #{id}
+        and ip.raw_material_tag = 1
+        order by ip.sort asc
+    </select>
+    <select id="selectCalendarWorkByWeek" resultType="java.util.Map">
+        select io2.entrust_code text,
+               io2.type         type,
+               ios.ins_state    insState,
+               u.name           name
+        from ins_order io2
+                 left join ins_order_state ios on ios.ins_order_id = io2.id
+                 left join user u on u.id = io2.create_user
+        where DATE(io2.create_time) = CURDATE() - INTERVAL #{day} DAY
+    </select>
+    <select id="selectProductByPartNo" resultType="com.ruoyi.basic.pojo.StructureTestObject">
+        select sto.id,
+               object_type
+        from product_part pp
+                 left join product p on p.id = pp.product_id
+                 left join structure_test_object sto on sto.id = p.object_id
+        where pp.part_no = #{partNo}
+    </select>
+    <select id="selectByPartNo" resultType="com.ruoyi.basic.pojo.StructureTestObject">
+        select sto.id,
+               object_type
+        from structure_test_object_part stop
+                 left join structure_test_object sto on sto.id = stop.test_object_id
+        where stop.part_no = #{partNo}
+    </select>
+
+    <!-- 成品标签打印 -->
+    <select id="labelOrderPrinting" resultType="com.ruoyi.inspect.vo.InsOrderPrintingVo">
+        select *
+        from (select io2.id insOrderId,
+                     io2.sample_view,
+                     io2.production,
+                     io2.send_time,
+                     GROUP_CONCAT(DISTINCT isa.model SEPARATOR ' ') AS sample_model,
+                     io2.prepare_user,
+                     io2.entrust_code,
+                     io2.test_quantity,
+                     io2.ins_state,
+                     JSON_OBJECT(
+                             'sample_name', io2.sample_view,
+                             'entrust_code', io2.entrust_code
+                     )                                                 labelBarCode
+              from ins_order io2
+                       LEFT JOIN ins_sample isa ON io2.id = isa.ins_order_id
+              where type_source = 0
+              GROUP BY io2.id) a
+        where insOrderId in
+        <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+
+    <!-- 查询检验单数据 -->
+    <select id="rawAllInsOrderExport" resultType="com.ruoyi.inspect.dto.SampleOrderDto">
+        select *
+        from ( <include refid="selectInsOrderExport"/>
+        where (io.ifs_inventory_id IS NULL OR TRIM(io.ifs_inventory_id)  = '')
+        <if test="isOrderAll != null and isOrderAll != ''">
+            AND io.state in (1, 4)
+        </if>
+        <if test="laboratory!=null and laboratory!=''">
+            AND io.laboratory=#{laboratory}
+        </if>
+        GROUP BY io.id,type
+        order by type desc,io.id desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <!-- 根据订单查询试验室 -->
+    <select id="selectLaboratoryByOrderId" resultType="java.lang.String">
+        select ip.son_laboratory
+        from ins_product ip
+                 left join ins_sample is2 on is2.id = ip.ins_sample_id
+        where is2.ins_order_id = #{insOrderId}
+        limit 1
+    </select>
+
+    <select id="selectFirstSubmit" resultType="com.ruoyi.inspect.pojo.InsOrder">
+        select io.id,
+               io.is_first_submit
+        from ins_order io
+                 left join ins_sample is2 on is2.ins_order_id = io.id
+        where is2.id = #{insSampleId}
+    </select>
+
+    <!-- 根据订单id查询订单导出信息 -->
+    <select id="getInsOrderExportByIds" resultType="com.ruoyi.inspect.dto.SampleOrderDto">
+        <include refid="selectInsOrderExport"/>
+        where (io.ifs_inventory_id IS NULL OR TRIM(io.ifs_inventory_id)  = '')
+        and io.id in
+        <foreach item="id" collection="orderIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY io.id,type
+        order by type desc,io.id desc
+    </select>
+
+    <!-- 查询当前时间是否有该检测项的抽样计划订单 -->
+    <select id="selectNotSpotCheckOrder" resultType="java.lang.Integer">
+        select count(*)
+        from (select io.id
+              from ins_product ip
+                       left join ins_sample is2 on is2.id = ip.ins_sample_id
+                       left join ins_order io on io.id = is2.ins_order_id
+                       left join spot_check_quarter_item scqi on scqi.quarter_item_id = io.quarter_item_id
+              where io.quarter_item_id is not null
+                and scqi.spot_check_time between #{startTime} and #{endTime}
+                and ip.structure_item_parameter_id = #{itmeId}
+              group by io.id) a
+    </select>
+</mapper>

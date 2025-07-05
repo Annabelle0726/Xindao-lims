@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.basic.mapper.CertificationMapper">
+    <select id="getCertificationDetail" resultType="com.ruoyi.basic.pojo.Certification">
+        SELECT * FROM certification
+        <where>
+            create_time IN (
+            SELECT MAX( create_time ) FROM certification WHERE create_time IS NOT NULL GROUP BY NAME )
+            <if test="param.name != null and param.name != ''">
+                AND name like concat('%',#{param.name},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

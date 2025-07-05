@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceImpowerDetailsMapper">
+
+    <!-- 查询设备使用详情 -->
+    <select id="deviceImpowerDetailsList" resultType="com.ruoyi.device.dto.DeviceImpowerDetailsDto">
+        select
+            did.*,
+            d.device_name,
+            d.specification_model,
+            d.management_number
+        from device_impower_details did
+                 left join device d on did.device_id = d.id
+        where did.impower_id = #{impowerId}
+    </select>
+</mapper>

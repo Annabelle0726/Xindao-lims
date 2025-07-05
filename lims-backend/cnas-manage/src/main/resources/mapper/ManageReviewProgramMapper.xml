@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageReviewProgramMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageReviewProgram">
+        <id column="id" property="id" />
+        <result column="review_time" property="reviewTime" />
+        <result column="judging_location" property="judgingLocation" />
+        <result column="judging_purpose" property="judgingPurpose" />
+        <result column="judging_method" property="judgingMethod" />
+        <result column="participants" property="participants" />
+        <result column="judging_scope" property="judgingScope" />
+        <result column="judging_basis" property="judgingBasis" />
+        <result column="main_context" property="mainContext" />
+        <result column="preparation_requirements" property="preparationRequirements" />
+        <result column="editor" property="editor" />
+        <result column="editor_date" property="editorDate" />
+        <result column="approve" property="approve" />
+        <result column="approve_date" property="approveDate" />
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <select id="page" resultType="com.ruoyi.manage.pojo.ManageReviewProgram">
+        select * from cnas_manage_review_program
+        <where>
+            <if test="startTime != null and startTime != ''">
+                 review_time >= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and #{endTime} >= review_time
+            </if>
+            <if test="judgingLocation != null and judgingLocation != ''">
+                and judging_location = #{judgingLocation}
+            </if>
+        </where>
+    </select>
+
+</mapper>

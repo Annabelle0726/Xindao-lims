@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageRecordVerifyMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageRecordVerify">
+        <id column="id" property="id"/>
+        <result column="document_name" property="documentName"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="standard_name" property="standardName"/>
+        <result column="standard_code" property="standardCode"/>
+        <result column="effective_date" property="effectiveDate"/>
+        <result column="cancel_date" property="cancelDate"/>
+        <result column="note" property="note"/>
+        <result column="manage_record_total_id" property="manageRecordTotalId"/>
+    </resultMap>
+
+    <select id="pageManageRecordVerify" resultMap="BaseResultMap">
+        select * from (select * from cnas_manage_record_verify)A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

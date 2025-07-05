@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.StandardMethodMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.basic.pojo.StandardMethod">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selectStandardMethodList" resultType="com.ruoyi.basic.pojo.StandardMethod">
+        select * from (
+                select sm.id,
+                sm.code,
+                sm.name,
+                sm.structure_test_object_id,
+                sto.specimen_name sample_type,
+                sm.remark,
+                u1.name create_user_name,
+                sm.create_time,
+                u2.name update_user_name,
+                sm.update_time,
+                sm.is_product,
+                sm.field,
+                sm.name_en,
+                sm.is_use,
+                sm.qualification_id
+                from standard_method sm
+                left join user u1 on sm.create_user = u1.id
+                left join user u2 on sm.update_user = u2.id
+                left join structure_test_object sto on sm.structure_test_object_id = sto.id
+                where sm.code != '技术要求'
+                ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectStandMethodById" resultType="com.ruoyi.basic.pojo.StandardMethod">
+        select sm.id,
+               sm.code,
+               sm.name,
+               sm.structure_test_object_id,
+               sto.specimen_name sample_type,
+               sm.remark,
+               u1.name create_user_name,
+               sm.create_time,
+               u2.name update_user_name,
+               sm.update_time,
+               sm.is_product,
+               sm.field,
+               sm.name_en,
+               sm.is_use,
+               sm.qualification_id
+        from standard_method sm
+                 left join user u1 on sm.create_user = u1.id
+                 left join user u2 on sm.update_user = u2.id
+                 left join structure_test_object sto on sm.structure_test_object_id = sto.id
+        where sm.id = #{id}
+    </select>
+
+    <select id="selectStandardMethodLists" resultType="com.ruoyi.basic.pojo.StandardMethodList">
+        select id, code, name, remark
+        from standard_method
+        where is_use = 1
+          and is_product = 1
+          and structure_test_object_id LIKE CONCAT('%[', #{tree}, ']%')
+    </select>
+
+    <select id="selectStandardMethodLists3" resultType="com.ruoyi.basic.pojo.StandardMethodList">
+        select id, code, name, remark
+        from standard_method
+        where is_use = 1
+          and is_product = 1
+          and structure_test_object_id LIKE CONCAT('%', #{tree}, '%')
+    </select>
+    <select id="selectListEnum" resultType="com.ruoyi.basic.pojo.StandardMethodList">
+        select id,code,name from standard_method
+        where is_product = 1
+          and is_use = 1
+    </select>
+    <select id="selectStandardMethodListsByNull" resultType="com.ruoyi.basic.pojo.StandardMethodList">
+        select id, code, name, remark
+        from standard_method
+        where is_use = 1
+          and is_product = 1
+          and (
+            structure_test_object_id is null
+                OR structure_test_object_id = ''
+                OR structure_test_object_id = '[]'
+            )
+    </select>
+    <select id="getStandardMethodId" resultType="java.lang.Integer">
+        select id from standard_method where code = #{code}
+    </select>
+</mapper>

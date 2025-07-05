@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.inspect.mapper.SpotCheckQuarterMapper">
+    <select id="getQuarterPage" resultType="com.ruoyi.inspect.dto.SpotCheckQuarterDto">
+        select * from (        select scq.quarter_id,
+        scq.quarter_no,
+        scq.quarter_status,
+        scq.file_url,
+        scq.remark,
+        u.name create_user_name,
+        scq.create_time
+        from spot_check_quarter scq
+        left join user u on u.id = scq.create_user) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="getQuarterOnOrder" resultType="java.util.Map">
+        select quarter_id value,
+               quarter_no label
+        from spot_check_quarter
+    </select>
+
+
+</mapper>

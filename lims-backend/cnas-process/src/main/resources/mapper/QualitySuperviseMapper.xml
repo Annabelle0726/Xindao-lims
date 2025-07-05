@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.QualitySuperviseMapper">
+
+    <!-- 监督计划列表 -->
+    <select id="pageQualitySupervise" resultType="com.ruoyi.process.pojo.QualitySupervise">
+        select *
+        from (select *
+              from cnas_quality_supervise
+              order by create_time desc ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <!-- 查询该计划监督员 -->
+
+    <select id="getRecordUser" resultType="java.util.Map">
+        select u.id   userId,
+               u.name userName
+        from user u
+                 left join cnas_quality_supervise cqs on find_in_set(u.id, cqs.record_user_ids)
+                 left join cnas_quality_supervise_details cqsd on cqs.supervise_id = cqsd.supervise_id
+        where cqsd.supervise_details_id = #{superviseDetailsId}
+    </select>
+
+</mapper>

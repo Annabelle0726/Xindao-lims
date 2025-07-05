@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.manage.mapper.ClientSatisfactionMapper">
+
+    <!-- 客户满意度调查 -->
+    <select id="pageClientSatisfaction" resultType="com.ruoyi.manage.pojo.ClientSatisfaction">
+        select *
+        from (select *
+              from cnas_client_satisfaction
+              order by create_time desc
+             ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="exportWordClientSatisfaction" resultType="com.ruoyi.manage.dto.ClientSatisfactionDto">
+        select *,
+               CASE WHEN service_attitude = 0 THEN '☑'
+                   ELSE '□' END AS serviceAttitude0,
+               CASE WHEN service_attitude = 1 THEN '☑'
+                   ELSE '□' END AS serviceAttitude1,
+               CASE WHEN service_attitude = 2 THEN '☑'
+                   ELSE '□' END AS serviceAttitude2,
+               service_attitude_suggestion,
+               CASE WHEN technical_competence = 0 THEN '☑'
+                    ELSE '□' END AS technicalCompetence0,
+               CASE WHEN technical_competence = 1 THEN '☑'
+                    ELSE '□' END AS technicalCompetence1,
+               CASE WHEN technical_competence = 2 THEN '☑'
+                    ELSE '□' END AS technicalCompetence2,
+               technical_competence_suggestion,
+               CASE WHEN inspection_work = 0 THEN '☑'
+                    ELSE '□' END AS inspectionWork0,
+               CASE WHEN inspection_work = 1 THEN '☑'
+                    ELSE '□' END AS inspectionWork1,
+               CASE WHEN inspection_work = 2 THEN '☑'
+                    ELSE '□' END AS inspectionWork2,
+               inspection_work_suggestion,
+               CASE WHEN reasonable_fees = 0 THEN '☑'
+                    ELSE '□' END AS reasonableFees0,
+               CASE WHEN reasonable_fees = 1 THEN '☑'
+                    ELSE '□' END AS reasonableFees1,
+               CASE WHEN reasonable_fees = 2 THEN '☑'
+                    ELSE '□' END AS reasonableFees2
+        from cnas_client_satisfaction
+        where client_satisfaction_id = #{clientSatisfactionId}
+    </select>
+</mapper>

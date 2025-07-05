@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.ProcessComplainMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.process.pojo.ProcessComplain">
+        <id column="id" property="id"/>
+        <result column="complain_no" property="complainNo"/>
+        <result column="complain_name" property="complainName"/>
+        <result column="ins_report_id" property="insReportId"/>
+        <result column="sample_code" property="sampleCode"/>
+        <result column="create_user" property="createUser"/>
+        <result column="complainant" property="complainant"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="complain_method" property="complainMethod"/>
+        <result column="problem_records" property="problemRecords"/>
+        <result column="problem_records_user" property="problemRecordsUser"/>
+        <result column="problem_records_time" property="problemRecordsTime"/>
+        <result column="duty_ownership" property="dutyOwnership"/>
+        <result column="duty_ownership_user" property="dutyOwnershipUser"/>
+        <result column="duty_ownership_time" property="dutyOwnershipTime"/>
+        <result column="cause_analysis" property="causeAnalysis"/>
+        <result column="cause_analysis_user" property="causeAnalysisUser"/>
+        <result column="cause_analysis_time" property="causeAnalysisTime"/>
+        <result column="corrective_action" property="correctiveAction"/>
+        <result column="corrective_action_user" property="correctiveActionUser"/>
+        <result column="corrective_action_time" property="correctiveActionTime"/>
+        <result column="corrective_action_confirmation" property="correctiveActionConfirmation"/>
+        <result column="corrective_action_confirmation_user" property="correctiveActionConfirmationUser"/>
+        <result column="corrective_action_confirmation_time" property="correctiveActionConfirmationTime"/>
+    </resultMap>
+    <select id="pageProcessComplain" resultType="com.ruoyi.process.pojo.ProcessComplain">
+        select *
+        from (select cpc.*,name complainant
+        from cnas_process_complain cpc left join user u on cpc.create_user = u.id)A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="getProcessComplain" resultType="com.ruoyi.process.dto.ProcessComplainDto">
+        select cpc.*,
+            ir.code,
+               u1.name complainant,
+               u1.phone,
+               u1.email,
+               u2.name problemRecordsUserName,
+               u3.name dutyOwnershipUserName,
+               u4.name causeAnalysisUserName,
+               u5.name correctiveActionUserName,
+               u6.name correctiveActionConfirmationUserName
+        from cnas_process_complain cpc
+                 left join user u1 on cpc.create_user = u1.id
+                 left join user u2 on cpc.problem_records_user = u2.id
+                 left join user u3 on cpc.duty_ownership_user = u3.id
+                 left join user u4 on cpc.cause_analysis_user = u4.id
+                 left join user u5 on cpc.corrective_action_user = u5.id
+                 left join user u6 on cpc.corrective_action_confirmation_user = u6.id
+            left join ins_report ir on cpc.ins_report_id = ir.id
+        where cpc.id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageRecordCancelMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageRecordCancel">
+        <id column="id" property="id"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="document_name" property="documentName"/>
+        <result column="qty" property="qty"/>
+        <result column="reason" property="reason"/>
+        <result column="create_user" property="createUser"/>
+        <result column="createUserName" property="createUserName"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="ratify_user" property="ratifyUser"/>
+        <result column="ratify_state" property="ratifyState"/>
+        <result column="ratifyUserName" property="ratifyUserName"/>
+        <result column="ratify_time" property="ratifyTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="pageManageRecordCancel" resultMap="BaseResultMap">
+        select * from (select cmrc.*,
+        u1.name createUserName,
+        u2.name ratifyUserName
+        from cnas_manage_record_cancel cmrc
+        left join user u1 on cmrc.create_user = u1.id
+        left join user u2 on cmrc.ratify_user = u2.id)A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

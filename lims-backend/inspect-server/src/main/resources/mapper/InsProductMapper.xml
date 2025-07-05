@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsProductMapper">
+
+    <update id="updateInspected">
+        UPDATE ins_product p
+        SET p.state=0
+        WHERE EXISTS(
+                      SELECT 1
+                      FROM ins_sample s
+                      WHERE s.ins_order_id IN (
+                          SELECT o.id
+                          FROM ins_order o
+                          WHERE o.id = #{id}
+                      )
+                        AND p.ins_sample_id = s.id
+                        AND p.state = 1
+                        AND p.ins_result IS NULL
+                  );
+    </update>
+
+    <select id="selectOrderManDay" resultType="java.lang.Integer">
+        select coalesce(max(ip.man_day), 0)
+        from ins_order io
+                 left join ins_sample isa on io.id = isa.ins_order_id
+                 left join ins_product ip on isa.id = ip.ins_sample_id
+        where io.id = #{orderId}
+    </select>
+    <select id="selectUserById" resultType="java.util.Map">
+        select account, name, company, phone, name_en
+        from user
+        where id = #{userId}
+    </select>
+    <select id="getProductAndResult" resultType="com.ruoyi.inspect.dto.ProductResultDto2">
+        select ip.id,
+               ip.inspection_item,
+               ip.inspection_item_subclass,
+               ip.laboratory,
+               ip.unit,
+               ipr.equip_name equipValue,
+               io.entrust_code,
+               ipr.update_time,
+               ip.ins_result,
+               u.name         updateUserName
+        from ins_product ip
+                 left join ins_product_result ipr on ip.id = ipr.ins_product_id
+                 left join ins_sample isa on isa.id = ip.ins_sample_id
+                 left join ins_order io on io.id = isa.ins_order_id
+                 left join user u on u.id = ipr.update_user
+        where ip.ins_sample_id = #{sampleId}
+          and ip.ins_result is not null
+          and template_id is not null
+    </select>
+    <select id="selectFiberInsProduct" resultType="com.ruoyi.inspect.pojo.InsProduct">
+        select * from ins_product
+        where state = 1
+        and is_binding != 1
+        and (ins_fibers_id is not null or ins_fiber_id is not null)
+        and ins_result is null
+        and son_laboratory = #{laboratory}
+        and ins_sample_id in
+        <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectNoProducts" resultType="com.ruoyi.inspect.pojo.InsProduct">
+        select *
+        from (select ip.*, sample_code
+              from ins_product ip
+                       left join ins_sample is2 on ip.ins_sample_id = is2.id
+              where state = 1
+                and is2.ins_order_id = #{orderId}
+        <if test="noIds != null and noIds.size() > 0">
+            and ip.id in
+            <foreach collection="noIds" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        ) A
+    </select>
+    <select id="selectInsProductCountByOrderId" resultType="java.lang.Integer">
+        select COUNT(1)
+        from ins_product ip
+                 left join ins_sample isa on ip.ins_sample_id = isa.id
+                 left join ins_order io on isa.ins_order_id = io.id
+        where io.id = #{orderId}
+          and (ip.ins_result is null or ip.ins_result = 2)
+          and ip.state = 1
+    </select>
+    <select id="selectListBySampleIds" resultType="com.ruoyi.inspect.dto.SampleProductRawAnalysisDto">
+        select ins.id                                                  ins_sample_id,
+               ins.sample_code,
+               ip.id                                                   ins_product_id,
+               concat(ip.inspection_item, ip.inspection_item_subclass) inspection_item,
+               ip.`last_value`,
+               iiq.update_batch_no,
+               iiq.supplier_name,
+               ins.sample,
+               ip.ins_result
+        from ins_product ip
+                 left join ins_sample ins on ins.id = ip.ins_sample_id
+                 left join ins_order io1 on io1.id = ins.ins_order_id
+                 left join ifs_inventory_quantity iiq on iiq.id = io1.ifs_inventory_id
+        where ip.inspection_value_type = 1
+        and ip.ins_sample_id in
+        <foreach collection="sampleIds" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+    <select id="selectItemNameBySampleIds" resultType="java.lang.String">
+        select concat(ip.inspection_item, ip.inspection_item_subclass)
+        from ins_product ip
+                 left join ins_sample ins on ins.id = ip.ins_sample_id
+        where ip.inspection_value_type = 1
+        and ip.ins_sample_id in
+        <foreach collection="sampleIds" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+
+        group by concat(ip.inspection_item, ip.inspection_item_subclass)
+    </select>
+    <select id="selectUnqualifiedList" resultType="java.lang.String">
+        select distinct concat(ip.inspection_item_class, ip.inspection_item, ip.inspection_item_subclass)
+        from ins_product ip
+                 left join ins_sample is2 on is2.id = ip.ins_sample_id
+                 left join ins_order io2 on io2.id = is2.ins_order_id
+        where io2.id = #{orderId}
+    </select>
+
+    <!--查询判断是否有不判定项目,和全都是判定项-->
+    <select id="selectNoJudge" resultType="java.lang.Integer">
+        select CASE
+                   WHEN SUM(CASE WHEN ip.ins_result = 3 THEN 1 ELSE 0 END) = COUNT(*) THEN 3
+                   WHEN SUM(CASE WHEN ip.ins_result = 3 THEN 1 ELSE 0 END) > 0 THEN 2
+                   ELSE 1 END AS result_flag
+        from ins_product ip
+                 left join ins_sample is2 on is2.id = ip.ins_sample_id
+                 left join ins_order io2 on io2.id = is2.ins_order_id
+        where io2.id = #{orderId}
+        and ip.is_binding != 1
+    </select>
+
+    <!-- 根据订单查询产品id -->
+    <select id="selectProductByOrderId" resultType="com.ruoyi.inspect.pojo.InsProduct">
+        select ip.*, is2.sample_code
+        from ins_product ip
+                 left join ins_sample is2 on is2.id = ip.ins_sample_id
+        where is2.ins_order_id = #{orderId}
+    </select>
+    <select id="selectAnalysis" resultType="com.ruoyi.inspect.pojo.InsProductDeviationWarningDetail">
+        select io.id           insOrderId,
+               is2.id          insSampleId,
+               ip.id           insProductId,
+               io.entrust_code,
+               is2.sample_code,
+               iiq.supplier_name,
+               ip.`last_value` testValue,
+               ip.update_time  detectionTime
+        from ins_product ip
+                 left join ins_sample is2 on is2.id = ip.ins_sample_id
+                 left join ins_order io on io.id = is2.ins_order_id
+                 left join ifs_inventory_quantity iiq on iiq.id = io.ifs_inventory_id
+                 left join ins_product_deviation_warning ipdw on ipdw.ins_product_id = ip.id
+        where concat(ip.inspection_item, ip.inspection_item_subclass) = concat(#{insProduct.inspectionItem}, #{insProduct.inspectionItemSubclass})
+          and ip.model = #{insProduct.model}
+          and iiq.supplier_name = #{supplierName}
+          and io.state = 4
+          and ip.ins_result = 1
+          and ipdw.deviation_warning_id is null
+        order by io.first_submit_date desc
+        limit 10
+    </select>
+</mapper>

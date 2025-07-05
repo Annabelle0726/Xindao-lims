@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.WarehouseMapper">
+
+    <resultMap id="Warehouse" type="com.ruoyi.inspect.dto.WarehouseDto">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <collection property="warehouseShelfList" resultMap="shelf"/>
+    </resultMap>
+
+    <resultMap id="shelf" type="com.ruoyi.inspect.pojo.WarehouseShelf">
+        <id property="id" column="sId" jdbcType="INTEGER"/>
+        <result property="name" column="sName" jdbcType="VARCHAR"/>
+        <result property="row" column="row" jdbcType="INTEGER"/>
+        <result property="col" column="col" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectWarehouseList" resultMap="Warehouse">
+        select w.id,w.name,ws.id sId,ws.name sName,ws.row,ws.col,ws.warehouse_id from warehouse w
+        left join warehouse_shelf ws on w.id = ws.warehouse_id
+    </select>
+</mapper>

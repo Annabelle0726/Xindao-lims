@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageControlPlanListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageControlPlanList">
+        <id column="id" property="id" />
+        <result column="job_activity" property="jobActivity" />
+        <result column="category" property="category" />
+        <result column="description" property="description" />
+        <result column="result" property="result" />
+        <result column="intolerable" property="intolerable" />
+        <result column="plan" property="plan" />
+        <result column="editor" property="editor" />
+        <result column="editor_date" property="editorDate" />
+        <result column="approval" property="approval" />
+        <result column="approval_date" property="approvalDate" />
+        <result column="approve" property="approve" />
+        <result column="approve_date" property="approveDate" />
+    </resultMap>
+
+    <select id="getPageList" resultType="com.ruoyi.manage.vo.ManageControlPlanListVo">
+        select c.*, u1.name editor_name, u2.name approval_name, u3.name approve_name
+        from cnas_manage_control_plan_list c
+                 left join user u1 on u1.id = c.editor
+                 left join user u2 on u2.id = c.approval
+                 left join user u3 on u3.id = c.approve
+        <if test="itSExporting == true">
+            where c.approve_status = 1
+            and c.approval_status = 1
+        </if>
+    </select>
+</mapper>

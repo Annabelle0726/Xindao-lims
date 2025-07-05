@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.ProcessTotaldealMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.process.pojo.ProcessTotaldeal">
+        <id column="id" property="id"/>
+        <result column="examine_user" property="examineUser"/>
+        <result column="examine_state" property="examineState"/>
+        <result column="examineUserName" property="examineUserName"/>
+        <result column="ratify_user" property="ratifyUser"/>
+        <result column="ratify_state" property="ratifyState"/>
+        <result column="ratifyUserName" property="ratifyUserName"/>
+        <result column="submit_user" property="submitUser"/>
+        <result column="submit_state" property="submitState"/>
+        <result column="submitUserName" property="submitUserName"/>
+        <result column="month" property="month"/>
+    </resultMap>
+    <select id="pageProcessTotaldeal" resultType="com.ruoyi.process.pojo.ProcessTotaldeal">
+        select *
+        from (select cpt.*, u1.name examineUserName , u2.name ratifyUserName,u3.name submitUserName
+        from cnas_process_totaldeal cpt
+        left join user u1 on u1.id = examine_user
+        left join user u2 on u2.id = ratify_user
+        left join user u3 on u3.id = submit_user) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

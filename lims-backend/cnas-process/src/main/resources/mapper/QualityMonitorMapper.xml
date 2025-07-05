@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.QualityMonitorMapper">
+    <!-- 监控计划分页查询 -->
+    <select id="pageQualityMonitor" resultType="com.ruoyi.process.dto.QualityMonitorDto">
+        select *
+        from (select cqm.*,
+                     u1.name write_name,
+                     u2.name examine_name,
+                     u3.name ratify_name
+              from cnas_quality_monitor cqm
+                       left join user u1 on u1.id = cqm.write_user_id
+                       left join user u2 on u2.id = cqm.examine_user_id
+                       left join user u3 on u3.id = cqm.ratify_user_id
+              order by cqm.create_time desc) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.manage.mapper.ClientSatisfactionAnalyseFileMapper">
+
+    <!-- 客户满意度分析附件列表 -->
+    <select id="pageAnalyseFile" resultType="com.ruoyi.manage.pojo.ClientSatisfactionAnalyseFile">
+        select *
+        from (select ccf.*,
+                     u.name user_name
+              from cnas_client_satisfaction_analyse_file ccf
+                       left join user u on u.id = ccf.create_user
+              order by ccf.create_time desc
+             ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

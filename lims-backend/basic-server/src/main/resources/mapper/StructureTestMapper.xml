@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.StructureTestObjectMapper">
+
+    <select id="selectTestObjectList" resultType="com.ruoyi.basic.dto.PageTestObjectDto">
+        select * from (
+        select sto.id,
+        sto.specimen_name,
+        u1.name create_user_name,
+        sto.create_time,
+        u2.name update_user_name,
+        sto.update_time,
+        sto.code,
+        sto.laboratory_id,
+        GROUP_CONCAT(p.name) product,
+        sto.specimen_name_en,
+        sto.object_type
+        from structure_test_object sto
+        left join user u1 on sto.create_user = u1.id
+        left join user u2 on sto.update_user = u2.id
+        left join product p on p.object_id = sto.id
+        left join product_part pp on pp.product_id = p.id
+        left join structure_test_object_part stop ON stop.test_object_id = sto.id
+        <if test="partNo != null and partNo != ''" >
+            where pp.part_no = #{partNo} or stop.part_no = #{partNo}
+        </if>
+        group by sto.id
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+
+    </select>
+
+</mapper>

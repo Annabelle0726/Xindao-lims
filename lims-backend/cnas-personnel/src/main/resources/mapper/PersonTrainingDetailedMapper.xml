@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.personnel.mapper.PersonTrainingDetailedMapper">
+
+    <select id="queryTheAnnualPlanDetailsTable" resultType="com.ruoyi.personnel.dto.PersonTrainingDetailedDto">
+        SELECT cptd.*,
+        u1.name training_lecturer_name,
+        dl.name holding_department_name, !isnull(cptr.training_record_id) whether_claim
+        FROM cnas_person_training_detailed cptd
+        left join user u1 on cptd.training_lecturer_id = u1.id
+        left join department_lims dl on dl.id = cptd.holding_department
+        left join cnas_person_training_record cptr on cptr.user_id = #{loginUserId} and cptr.course_id = cptd.id
+        <where>
+            <if test="id != null">
+                and cptd.plan_id = #{id}
+            </if>
+            <if test="userId != null">
+                and u1.id = #{userId}
+            </if>
+            <if test="trainingLecturerName != null and trainingLecturerName != ''">
+                and u1.name like concat('%', #{trainingLecturerName}, '%')
+            </if>
+            <if test="trainingDate != null and trainingDate != ''">
+                and date_format(cptd.training_date,'%Y-%m-%d') = #{trainingDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据主表id查询详情 -->
+    <select id="selectTrainingList" resultType="com.ruoyi.personnel.dto.PersonTrainingDetailedDto">
+        SELECT cptd.*,
+               u1.name training_lecturer_name
+        FROM cnas_person_training_detailed cptd
+                 left join user u1 on cptd.training_lecturer_id = u1.id
+        where cptd.plan_id = #{trainingId}
+    </select>
+
+    <!-- 查询详细 -->
+    <select id="selectTrainingDetail" resultType="com.ruoyi.personnel.dto.PersonTrainingDetailedDto">
+        SELECT cptd.*,
+               u1.name training_lecturer_name,
+               u1.signature_url training_lecturer_signature_url
+        FROM cnas_person_training_detailed cptd
+                 left join user u1 on cptd.training_lecturer_id = u1.id
+        where cptd.id = #{id}
+    </select>
+
+    <!-- 查询今年人员培训信息 -->
+    <select id="getThisYearTrainingDetailed" resultType="com.ruoyi.personnel.pojo.PersonTrainingDetailed">
+        select cptd.id,
+               cptd.training_objectives
+        from cnas_person_training_detailed cptd
+        where training_date like concat('%', YEAR(NOW()), '%')
+    </select>
+</mapper>

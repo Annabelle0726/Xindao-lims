@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsOrderFileMapper">
+    <!-- 通用查询映射结果 -->
+    <select id="getFileList" resultType="com.ruoyi.inspect.pojo.InsOrderFile">
+        select A.*
+        from (select iof.*, name
+              from ins_order_file iof
+                       left join user u on iof.create_user = u.id
+              where iof.ins_order_id = #{insOrderId}) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

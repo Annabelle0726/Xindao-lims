@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsUnqualifiedHandlerMapper">
+
+    <sql id="Base_Column_List">
+        id,no,supplier_name,
+        material_name,production_batch,cargo_quantity,
+        specs_models,inspect_time,feedback_user,
+        feedback_time,classification,off_grade_ascription,
+        unqualified_desc,inventory_quantity_id
+    </sql>
+    <select id="selectPageList" resultType="com.ruoyi.inspect.vo.UnqualifiedHandlerVO">
+        select * from (select
+            iiq.*,
+            iuh.id as handler_id,
+            iuh.no,
+            iuh.material_name,
+            iuh.production_batch,
+            iuh.cargo_quantity,
+            iuh.specs_models,
+            iuh.inspect_time,
+            iuh.feedback_user,
+            iuh.feedback_time,
+            iuh.classification,
+            iuh.off_grade_ascription,
+            iuh.unqualified_desc,
+            iuh.inventory_quantity_id,
+            iuh.oa_state,
+            iuh.request_id,
+            iuh.file_url,
+            iuh.headline
+        from
+            ins_unqualified_handler iuh
+        inner join
+            ifs_inventory_quantity iiq
+        on
+            iuh.inventory_quantity_id = iiq.id)tempA
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by id desc
+    </select>
+    <select id="findById" resultType="com.ruoyi.inspect.vo.UnqualifiedHandlerVO">
+        select * from (select
+        iiq.*,
+        iuh.id as handler_id,
+        iuh.no,
+        iuh.headline,
+        iuh.material_name,
+        iuh.production_batch,
+        iuh.cargo_quantity,
+        iuh.specs_models,
+        iuh.inspect_time,
+        iuh.feedback_user,
+        iuh.feedback_time,
+        iuh.classification,
+        iuh.off_grade_ascription,
+        iuh.unqualified_desc,
+        iuh.inventory_quantity_id,
+        iuh.request_id,
+        iuh.oa_state,
+        iuh.file_url
+        from
+        ins_unqualified_handler iuh
+        inner join
+        ifs_inventory_quantity iiq
+        on
+        iuh.inventory_quantity_id = iiq.id)tempA
+        where tempA.handler_id = #{id}
+    </select>
+    <select id="getOaFlow" resultType="com.ruoyi.inspect.pojo.CommonOa">
+        select co.id,
+               co.node_name,
+               co.operation,
+               co.approver,
+               co.approval_date,
+               co.approval_time,
+               co.approval_opinion,
+               co.workflow_id
+        from common_oa co
+                 left join ins_unqualified_handler iuh on iuh.request_id = co.workflow_id
+        where iuh.id = #{id}
+        and operation != '抄送'
+        group by co.node_name
+    </select>
+</mapper>

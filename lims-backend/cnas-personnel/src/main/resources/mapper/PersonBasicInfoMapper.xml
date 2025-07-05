@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.personnel.mapper.PersonBasicInfoMapper">
+
+    <select id="selectLimsUser" resultType="com.ruoyi.common.core.domain.entity.DepartmentDto">
+        SELECT u.id userId, u.name, SUBSTRING_INDEX(SUBSTRING_INDEX(u.depart_lims_id, ',', -2), ',', 1) AS fatherId
+        FROM user u
+        where u.is_custom = 0
+          and u.depart_lims_id is not null
+          and u.depart_lims_id != ''
+    </select>
+
+    <select id="getCNASPersonnelInfo" resultType="com.ruoyi.personnel.dto.PersonBasicInfoDto">
+        SELECT *
+        FROM user u
+                 left join cnas_person_basic_info cpbi on cpbi.user_id = u.id
+        where u.id = #{userId}
+    </select>
+
+    <select id="selectPersonBasecInfoAndUser" resultType="java.util.Map">
+        select
+            u.id  userId,
+            u.`name`  name,
+            u.account account,
+            DATE_FORMAT(cpbi.group_time, '%Y-%m-%d') groupTime,
+            cpbi.native_place nativePlace,
+            cpbi.identity_card identityCard,
+            cpbi.id_address idAddress,
+            u.phone telephone,
+            cpbi.graduated_institutions1 graduatedInstitutions1,
+            cpbi.major1 major1,
+            DATE_FORMAT(cpbi.graduation_time1, '%Y-%m-%d')  graduationTime1,
+            cpbi.official_academic_redentials officialAcademicRedentials,
+            cpbi.highest_degree highestDegree,
+            cpbi.professional_title professionalTitle
+        from user u
+                 left join cnas_person_basic_info cpbi on cpbi.user_id = u.id
+        <where>
+            FIND_IN_SET(#{departmentId},u.depart_lims_id)
+            <if test="name != null and name != ''">
+                and u.name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 导出查询人员信息 -->
+    <select id="selectexportPersonBasic" resultType="java.util.Map">
+        select DATE_FORMAT(cpbi.last_update_time, '%Y年%m月%d日') lastUpdateTimeString,
+               u.account,
+               u.`name`,
+               cpbi.sex,
+               cpbi.post_name postName,
+               u.age,
+               DATE_FORMAT(cpbi.working_time, '%Y年%m月')   workingTimeString,
+               cpbi.major1,
+               DATE_FORMAT(cpbi.graduation_time1, '%Y年%m月')   graduationTime1string,
+               cpbi.official_academic_redentials officialAcademicRedentials,
+               cpbi.graduated_institutions1 graduatedInstitutions1,
+               cpbi.remarks
+        from user u
+                 left join cnas_person_basic_info cpbi on cpbi.user_id = u.id
+        where u.id = #{userId}
+    </select>
+</mapper>

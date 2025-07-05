@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.AuxiliaryCorrectionHoursMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.performance.pojo.AuxiliaryCorrectionHours">
+        <id column="id" property="id"/>
+        <result column="name_user" property="nameUser"/>
+        <result column="type" property="type"/>
+        <result column="one_hours" property="oneHours"/>
+        <result column="two_hours" property="twoHours"/>
+        <result column="three_hours" property="threeHours"/>
+        <result column="four_hours" property="fourHours"/>
+        <result column="five_hours" property="fiveHours"/>
+        <result column="six_hours" property="sixHours"/>
+        <result column="seven_hours" property="sevenHours"/>
+        <result column="eight_hours" property="eightHours"/>
+        <result column="nine_hours" property="nineHours"/>
+        <result column="ten_hours" property="tenHours"/>
+        <result column="eleven_hours" property="elevenHours"/>
+        <result column="twelve_hours" property="twelveHours"/>
+        <result column="thirteen_hours" property="thirteenHours"/>
+        <result column="fourteen_hours" property="fourteenHours"/>
+        <result column="fifteen_hours" property="fifteenHours"/>
+        <result column="sixteen_hours" property="sixteenHours"/>
+        <result column="seventeen_hours" property="seventeenHours"/>
+        <result column="eighteen_hours" property="eighteenHours"/>
+        <result column="nineteen_hours" property="nineteenHours"/>
+        <result column="twenty_hours" property="twentyHours"/>
+        <result column="twenty_one_hours" property="twentyOneHours"/>
+        <result column="twenty_two_hours" property="twentyTwoHours"/>
+        <result column="twenty_three_hours" property="twentyThreeHours"/>
+        <result column="twenty_four_hours" property="twentyFourHours"/>
+        <result column="twenty_five_hours" property="twentyFiveHours"/>
+        <result column="twenty_six_hours" property="twentySixHours"/>
+        <result column="twenty_seven_hours" property="twentySevenHours"/>
+        <result column="twenty_eight_hours" property="twentyEightHours"/>
+        <result column="twenty_nine_hours" property="twentyNineHours"/>
+        <result column="thirty_hours" property="thirtyHours"/>
+        <result column="thirty_one_hours" property="thirtyOneHours"/>
+        <result column="month" property="month"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+    </resultMap>
+    <select id="selectAuxiliaryCorrectionHours" resultType="com.ruoyi.performance.dto.AuxiliaryCorrectionHoursDto">
+        select A.*
+        from (
+        select ach.*,
+        name,
+        sum(one_hours+two_hours+ three_hours+ four_hours+ five_hours+ six_hours+ seven_hours+ eight_hours+ nine_hours+
+        ten_hours+ eleven_hours+ twelve_hours+thirteen_hours+ fourteen_hours+ fifteen_hours+ sixteen_hours+
+        seventeen_hours+ eighteen_hours+ nineteen_hours+ twenty_hours+ twenty_one_hours+ twenty_two_hours+
+        twenty_three_hours+ twenty_four_hours+ twenty_five_hours+ twenty_six_hours+ twenty_seven_hours+
+        twenty_eight_hours+ twenty_nine_hours+ thirty_hours+ thirty_one_hours) as total
+        FROM auxiliary_correction_hours ach
+        left join user on user.id=ach.name_user
+        WHERE 1=1
+        <if test="ids !=null and ids != ''">
+            and name_user in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        ) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selDepartLimsByName" resultType="java.lang.Integer">
+        select id
+        from department_lims
+        where name LIKE CONCAT('%', #{departLims}, '%');
+    </select>
+</mapper>

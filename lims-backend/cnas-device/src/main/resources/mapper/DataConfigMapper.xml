@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DataConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.device.pojo.DataConfig">
+        <id column="id" property="id" />
+        <result column="formula" property="formula" />
+        <result column="referx" property="referx" />
+        <result column="refery" property="refery" />
+        <result column="x" property="x" />
+        <result column="y" property="y" />
+    </resultMap>
+
+    <select id="selectDataConfigList" resultType="com.ruoyi.device.dto.DeviceConfigDtoPage">
+        SELECT ddc.*,
+               d.device_name,
+               sip.sample
+        FROM device_data_config ddc
+                 left join device d on ddc.device_id = d.id
+                 left join structure_item_parameter sip on sip.id = ddc.structure_item_parameter_id
+        where d.id = #{deviceId}
+        order by ddc.id desc
+    </select>
+
+    <select id="deleteDataConfig" resultType="integer">
+        SELECT ddc.id
+        FROM device d
+                 left join structure_item_parameter ip on not FIND_IN_SET(ip.id, d.ins_product_ids)
+                 inner join device_data_config ddc on ddc.device_id = d.id and ddc.structure_item_parameter_id = ip.id
+    </select>
+    <select id="getNoConfigProduct" resultType="com.ruoyi.device.pojo.DataConfig">
+        SELECT d.id device_id,
+               ip.inspection_item,
+               ip.inspection_item_class,
+               ip.inspection_item_subclass                          ,
+               ip.sample,
+               ip.id                                                                          structureItemParameterId,
+               ddc.id
+        FROM structure_item_parameter ip
+                 left join device d on FIND_IN_SET(d.id, ip.device_ids)
+                 left join device_data_config ddc on ddc.device_id = d.id and ddc.structure_item_parameter_id = ip.id
+        where d.id = #{deviceId}
+          and ddc.id is null
+        order by ip.sample
+    </select>
+</mapper>

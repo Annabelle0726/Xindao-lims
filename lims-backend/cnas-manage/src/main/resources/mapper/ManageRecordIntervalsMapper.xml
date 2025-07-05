@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageRecordIntervalsMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageRecordIntervals">
+        <id column="id" property="id"/>
+        <result column="document_name" property="documentName"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="document_version" property="documentVersion"/>
+        <result column="revision" property="revision"/>
+        <result column="suitability" property="suitability"/>
+        <result column="remark" property="remark"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="record_intervals_total_id" property="recordIntervalsTotalId"/>
+    </resultMap>
+
+    <select id="pageManageRecordIntervals" resultMap="BaseResultMap">
+        select *
+        from (select * from cnas_manage_record_intervals) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

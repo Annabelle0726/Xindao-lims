@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.WarehouseCellMapper">
+
+    <select id="getWarehouse" resultMap="WarehouseCellAndHistoryDto">
+        select wc.id, wc.row, wc.col, i.id sampleId, i.sample, i.model, i.sample_code from warehouse_cell wc
+        left join ins_sample i on i.cell_id = wc.id
+        where wc.state = 1
+        and wc.shelf_id = #{shelfId}
+        order by wc.id
+    </select>
+
+    <resultMap id="WarehouseCellAndHistoryDto" type="com.ruoyi.inspect.dto.WarehouseCellAndSampleDto">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="row" column="row" jdbcType="INTEGER"/>
+        <result property="col" column="col" jdbcType="INTEGER"/>
+        <collection property="samples" resultMap="InsSample"/>
+    </resultMap>
+
+    <resultMap id="InsSample" type="com.ruoyi.inspect.pojo.InsSample">
+        <id property="id" column="sampleId"/>
+        <result property="sample" column="sample"/>
+        <result property="model" column="model"/>
+        <result property="sampleCode" column="sample_code"/>
+    </resultMap>
+</mapper>

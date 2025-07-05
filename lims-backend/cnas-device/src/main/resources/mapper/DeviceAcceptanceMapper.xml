@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceAcceptanceMapper">
+
+    <!-- 设备验收列表 -->
+    <select id="pageDeviceAcceptance" resultType="com.ruoyi.device.pojo.DeviceAcceptance">
+        select * from (
+        select *
+        from device_acceptance
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

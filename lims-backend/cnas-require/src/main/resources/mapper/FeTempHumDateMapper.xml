@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeTempHumDateMapper">
+
+    <select id="getFeTempHumDate" resultType="com.ruoyi.require.dto.FeTempHumDateDto">
+        select * from (
+        select c.*,
+        u.name registrar_user_name,
+        concat('≥', cl.temperature_lowest, '&amp;', '≤', cl.temperature_highest) temperature_section,
+        concat('≥', cl.humidity_lowest, '&amp;', '≤', cl.humidity_highest) humidity_section
+        from cnas_fe_temp_hum_date c
+        left join user u on c.registrar_user_id = u.id
+        left join collect_laboratory cl on cl.laboratory = c.test_area_name) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by month_date desc
+    </select>
+    <select id="selectFeTempHumDateIncludeFormattedDate" resultType="java.lang.Integer">
+        select count(*)
+        from cnas_fe_temp_hum_date
+        where test_area_name = #{laboratory}
+          and month_date = #{formattedDate}
+    </select>
+</mapper>

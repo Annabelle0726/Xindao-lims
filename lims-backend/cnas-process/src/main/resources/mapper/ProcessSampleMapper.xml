@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.ProcessSampleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.process.pojo.ProcessSample">
+        <id column="id" property="id" />
+        <result column="sample_name" property="sampleName" />
+        <result column="sample_code" property="sampleCode" />
+        <result column="sample_supplier" property="sampleSupplier" />
+        <result column="num" property="num" />
+        <result column="sample_state" property="sampleState" />
+        <result column="create_user" property="createUser" />
+        <result column="update_user" property="updateUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="receive_date" property="receiveDate" />
+        <result column="leave_date" property="leaveDate" />
+        <result column="deal_time" property="dealTime" />
+    </resultMap>
+    <select id="pageProcessSample" resultType="com.ruoyi.process.pojo.ProcessSample">
+        select *
+        from (select * from cnas_process_sample) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.inspect.mapper.InsOrderRatesMapper">
+    <!-- 查询费用列表 -->
+    <select id="selectInsOrderRates" resultType="com.ruoyi.inspect.dto.SampleOrderDto">
+        select *
+        from (select io.*,
+        case
+        when
+        io.type_source = 0
+        then io.sample_view
+        else io.sample end                            sampleStr,
+        GROUP_CONCAT(DISTINCT isa.model SEPARATOR ' ') AS sample_model,
+        sum(tempior.rates) + 200 total_price
+        from ins_order io
+        LEFT JOIN ins_sample isa ON isa.ins_order_id = io.id
+        left join (
+        select ior.id, ior.ins_order_id, ior.rates from
+        ins_order_rates ior
+        left join ins_product ip on ip.id = ior.ins_product_id
+        left join ins_order io2 on ior.ins_order_id = io2.id
+        GROUP BY CASE
+        WHEN ior.man_hour_group IS NOT NULL AND ior.man_hour_group != '' THEN ior.man_hour_group
+        ELSE ior.id END,
+        CASE WHEN ior.man_hour_group IS NOT NULL AND ior.man_hour_group != '' THEN ior.ins_sample_id ELSE ior.id END,
+        CASE WHEN ior.man_hour_group IS NOT NULL AND ior.man_hour_group != '' THEN ip.radius ELSE ior.id END,
+        CASE WHEN ior.man_hour_group IS NOT NULL AND ior.man_hour_group != '' THEN ip.cable_tag ELSE ior.id END,
+        CASE WHEN ior.man_hour_group IS NOT NULL AND ior.man_hour_group != '' THEN ior.ins_order_id ELSE ior.id END) tempior on tempior.ins_order_id = io.id
+        where tempior.id is not null
+        group by io.id) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+</mapper>

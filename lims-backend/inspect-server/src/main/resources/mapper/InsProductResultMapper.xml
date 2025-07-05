@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.inspect.mapper.InsProductResultMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.inspect.pojo.InsProductResult">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="insProductId" column="ins_product_id" jdbcType="INTEGER"/>
+        <result property="insValue" column="ins_value" jdbcType="VARCHAR"/>
+        <result property="comValue" column="com_value" jdbcType="VARCHAR"/>
+        <result property="equipValue" column="equip_value" jdbcType="VARCHAR"/>
+        <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+        <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selDetail" resultMap="BaseResultMap">
+        select *
+        from ins_product_result
+        where 1=1
+            <!--and ins_product_id in (#{ips})-->
+        <if test="ips != null and ips.size() > 0">
+            <!-- 使用foreach元素构建IN子句 -->
+            and ins_product_id in
+            <foreach item="item" collection="ips" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 根据订单id查询检验结果 -->
+    <select id="selectResultByOrderId" resultType="com.ruoyi.inspect.pojo.InsProductResult">
+        select ipr.equip_value,
+            ipr.create_user
+        from ins_product_result ipr
+                 left join ins_product ip on ip.id = ipr.ins_product_id
+                 left join ins_sample is2 on is2.id = ip.ins_sample_id
+        where is2.ins_order_id = #{orderId}
+    </select>
+</mapper>

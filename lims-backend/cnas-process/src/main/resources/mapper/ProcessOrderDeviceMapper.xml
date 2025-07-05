@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.ProcessOrderDeviceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.process.pojo.ProcessOrderDevice">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="inspection_order_id" property="inspectionOrderId" />
+        <result column="sample_code" property="sampleCode" />
+        <result column="use_before" property="useBefore" />
+        <result column="use_after" property="useAfter" />
+        <result column="abnormal" property="abnormal" />
+        <result column="use_start_date" property="useStartDate" />
+        <result column="use_person_id" property="usePersonId" />
+        <result column="use_person" property="usePerson" />
+        <result column="remark" property="remark" />
+        <result column="use_end_date" property="useEndDate" />
+    </resultMap>
+    <select id="selectDeviceNumber" resultType="java.lang.String">
+        select distinct d.management_number
+        from  cnas_process_order_device cpod
+                 left join device d on d.id = cpod.device_id
+        where cpod.inspection_order_id = #{inspectionOrderId}
+    </select>
+    <select id="selectDeviceIdsByNumbers" resultType="java.lang.Integer">
+        select id
+        from device
+        where management_number in
+        <foreach collection="deviceNumbers" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+    <select id="deviceRecordPage" resultType="com.ruoyi.process.pojo.ProcessOrderDevice">
+        select cpod.*,
+        d.device_name,
+        d.management_number
+        from cnas_process_order_device cpod
+        left join device d on d.id = cpod.device_id
+        where 1=1
+        <if test="deviceId != null">
+            and dr.device_id = #{deviceId}
+        </if>
+        <if test="sampleCode != '' and sampleCode != null">
+            and dr.sample_code like concat('%', #{sampleCode}, '%')
+        </if>
+        <if test="managementNumber != '' and managementNumber != null">
+            and d.management_number like concat('%', #{managementNumber}, '%')
+        </if>
+        ORDER BY (cpod.use_start_date IS NULL) desc , cpod.use_start_date DESC
+    </select>
+</mapper>

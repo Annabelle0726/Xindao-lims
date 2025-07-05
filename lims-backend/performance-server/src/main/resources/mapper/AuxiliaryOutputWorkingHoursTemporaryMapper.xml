@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.performance.mapper.AuxiliaryOutputWorkingHoursTemporaryMapper">
+
+    <!-- 根据订单查询工时详情 -->
+
+    <select id="getWorkingHoursByOrderId"
+            resultType="com.ruoyi.performance.dto.AuxiliaryOutputWorkingHoursTemporaryDto">
+        select *
+        from (select aowh.*,
+        user.name,
+        ip.cable_tag
+        FROM auxiliary_output_working_hours_temporary aowh
+        left join ins_product ip on ip.id = aowh.ins_product_id
+        left join user on user.id=aowh.`check`) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

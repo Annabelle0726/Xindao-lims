@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.LaboratoryMapper">
+
+    <select id="selectItemParameter" resultType="com.ruoyi.basic.pojo.Laboratory">
+        select * from
+        (
+        select l.id,
+        laboratory_name,
+        laboratory_number,
+        laboratory_code,
+        phone_number,
+        head,
+        l.address,
+        u1.name create_user_name,
+        l.create_time
+        from laboratory l
+        left join user u1 on l.create_user = u1.id
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="obtainItemParameterList" resultType="java.lang.Object">
+        select * from
+            (
+                select l.id,
+                       laboratory_name,
+                       laboratory_number,
+                       phone_number,
+                       head,
+                       l.address,
+                       u1.name create_user_name,
+                       l.create_time
+                from laboratory l
+                         left join user u1 on l.create_user = u1.id
+            ) a
+    </select>
+</mapper>

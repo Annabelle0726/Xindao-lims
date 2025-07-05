@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FePowerStableMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.FePowerStable">
+        <id column="power_stable_id" property="powerStableId" />
+        <result column="test_location" property="testLocation" />
+        <result column="test_date" property="testDate" />
+        <result column="device_id" property="deviceId" />
+        <result column="conclusion" property="conclusion" />
+        <result column="tester_id" property="testerId" />
+        <result column="checker_id" property="checkerId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <select id="getLaboratoryFacilityPowerStablePage" resultType="com.ruoyi.require.dto.FePowerStableDto">
+        SELECT cfps.*, u1.name checker_user, u2.name tester_user, dv.device_name, dv.management_number
+        FROM cnas_fe_power_stable cfps
+                 left join device dv on dv.id = cfps.device_id
+                 left join user u1 on u1.id = cfps.checker_id
+                 left join user u2 on u2.id = cfps.tester_id
+    </select>
+
+    <select id="getCalibrationDate" resultType="java.util.Map">
+        SELECT
+            d.device_name deviceName,
+            d.management_number managementNumber,
+            date_format(dmr.calibration_date,'%Y-%m-%d') calibrationDate,
+            date_format(dmr.next_calibration_date,'%Y-%m-%d') nextCalibrationDate
+        FROM
+            device d
+                LEFT JOIN device_metric_record dmr ON dmr.device_id = d.id
+                AND dmr.type = 'calibrate'
+        where d.id = #{deviceId}
+        GROUP BY
+            d.id
+    </select>
+
+    <!-- 查询电源稳定性 -->
+    <select id="selectPowerStable" resultType="com.ruoyi.require.dto.FePowerStableExportDto">
+        SELECT cfps.*,
+               dv.device_name,
+               dv.management_number,
+               DATE_FORMAT(cfps.test_date, '%Y-%m-%d') testDateString,
+               DATE_FORMAT(d.calibration_date, '%Y-%m-%d') calibrationDateString,
+               DATE_FORMAT(d.next_calibration_date, '%Y-%m-%d') nextCalibrationDateString
+        FROM cnas_fe_power_stable cfps
+                 left join device dv on dv.id = cfps.device_id
+                 LEFT JOIN (SELECT d.id,
+                                   dmr.calibration_date,
+                                   dmr.next_calibration_date
+                            FROM device d
+                                     LEFT JOIN device_metric_record dmr ON dmr.device_id = d.id
+                                AND dmr.type = 'calibrate'
+                            GROUP BY d.id
+                            HAVING max(dmr.id)) d ON d.id = cfps.device_id
+                 left join user u1 on u1.id = cfps.checker_id
+                 left join user u2 on u2.id = cfps.tester_id
+        where cfps.power_stable_id = #{powerStableId}
+    </select>
+</mapper>

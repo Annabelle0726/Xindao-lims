@@ -1,0 +1,173 @@
+# 本地
+
+# 数据源配置
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # 主库数据源
+      master:
+        url: jdbc:mysql://114.132.189.42:9004/lims-ztzb?useSSL=false&serverTimezone=GMT%2B8
+        username: root
+        password: 123456
+      # 从库数据源
+      slave:
+        # 从数据源开关/默认关闭
+        enabled: false
+        url:
+        username:
+        password:
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置连接超时时间
+      connectTimeout: 30000
+      # 配置网络超时时间
+      socketTimeout: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: ruoyi
+        login-password: 123456
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+
+  # redis 配置
+  redis:
+    # 地址
+    host: localhost
+    # 端口，默认为6379
+    port: 6379
+    # 数据库索引
+    database: 0
+    #    # 密码
+    #    password: root2022!
+    # 连接超时时间
+    timeout: 10s
+    lettuce:
+      pool:
+        # 连接池中的最小空闲连接
+        min-idle: 0
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池的最大数据库连接数
+        max-active: 8
+        # #连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+
+# mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: com.ruoyi.**.domain
+  global-config:
+    banner: off
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Swagger配置
+swagger:
+  # 是否开启swagger
+  enabled: true
+
+# 日志配置
+logging:
+  file-location: /javaWork/lims-ruoyi
+  level:
+    com.ruoyi: info
+    org.springframework: warn
+
+minio:
+  endpoint: http://114.132.189.42/
+  port: 7019
+  secure: false
+  accessKey: admin
+  secretKey: 12345678
+  preview-expiry: 24 # 预览地址默认24小时
+
+# 照片存储路径+++++++++++++++++++++++++++运维需要配置+++++++++++++++++++++++++++
+file:
+  path: D:\项目文件存储\image
+  # 上传文件允许的扩展名
+  allowed: png,jpg,jpeg,gif
+
+wordUrl: D:\项目文件存储\word
+
+
+#oa:
+#    oaHost: http://192.168.0.49:8000/oa_workflowrequest.asmx?wsdl
+#    prodIp: http://192.168.21.53:8081
+#    unqualifiedProcessId: 41974
+
+# 人事系统
+personnel:
+  # 正式地址
+  code: https://ztt-sso.ztt.cn/oauth2/token
+  # 装备人事正式库
+  appId: 6f5f6a0c-2a01-4ef6-9e75-c8a6f0c2f044
+  appSecret: 89b9c4735b1e5ee9d6a8544b9b38bb03
+  companies: https://ztt-connector.ztt.cn/api/org/v1/companies
+  simple: https://ztt-connector.ztt.cn/api/org/v1/employees/simple?companyId=
+  # 人员密码获取
+  password: https://ztt-connector.ztt.cn/api/org/v1/employees/original_pwd/
+  department: https://ztt-connector.ztt.cn/api/org/v1/companies/companyId/departments
+  person: https://ztt-connector.ztt.cn/api/org/v1/employees/simple/
+
+# 企业微信通知
+wechat:
+  # 质量报检通知
+  examiningUrl: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=21993616-9966-4fe4-81b0-68e99a40c964
+
+ifs:
+  contract: ZTZB
+  contract-key-get: 4ttDeLKNsZuhstjtROMcRE1USNFXKdFYE7lQ2p1m5Bo=
+  contract-key-post: 4ttDeLKNsZuhstjtROMcRE1USNFXKdFYE7lQ2p1m5Bo=
+  custorder: http://192.168.20.47/PurchService.ashx?
+  custorder-port: http://192.168.20.47:8008/PurchService.ashx?
+  erp-services: http://192.168.20.47:8081
+
+# 备注 18083密码：zttZTT123!@
+mqtt:
+  url: tcp://mqtt-ztt.zttiot.com:1883 # 服务器ip
+  username: forwarder # MQTT-服务端-用户名,后期会修改为用户登录名
+  password: ZTlink12345 # MQTT-服务端-密码，,后期会修改为用户登录密码
+  timeout: 100 # 超时时间 （单位：秒）
+  keepalive: 60 # 心跳 （单位：秒）
+  qos: 1 # 心跳包级别
+  completion-timeout: 3000 # 连接超时时间（单位：秒）
+  clientId: javaPublish # clientId
+  subscribe: /ztt/v3/2443521/publish # 订阅主题
+  client: false # 如果开发需要启动测试，需要改为false不然会一直报错

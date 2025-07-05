@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.ProcessMethodVerifyMapper">
+
+    <!-- 标准方法跟新验证列表 -->
+    <select id="pagesMethodVerify" resultType="com.ruoyi.process.pojo.ProcessMethodVerify">
+        select * from (
+        select method_verify_id,
+        method_name,
+        verify_reason,
+        technology_change,
+        confirm_date,
+        create_time,
+        operation_type
+        from cnas_process_method_verify
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

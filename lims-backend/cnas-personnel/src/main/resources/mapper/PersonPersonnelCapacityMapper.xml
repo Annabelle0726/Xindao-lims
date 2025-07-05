@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.personnel.mapper.PersonPersonnelCapacityMapper">
+
+    <select id="personPersonnelCapacityPage" resultType="com.ruoyi.personnel.dto.PersonPersonnelCapacityDto">
+        select cppc.*,
+        u2.name confirm_operating_personnel_name,
+        u3.name user_name,
+        cpbi.post_name,
+        ecp.responsibilities,
+        cpbi.professional_title,
+        TRIM(',' FROM CONCAT(cpbi.major1, ',', cpbi.major2)) AS major
+        from cnas_person_personnel_capacity cppc
+        left join user u2 on cppc.confirm_operating_personnel_id = u2.id
+        left join user u3 on cppc.user_id = u3.id
+        -- 取岗位
+        left join cnas_person_basic_info cpbi on cpbi.user_id = cppc.user_id
+        -- 取人员能力的岗位职责
+        left join (SELECT GROUP_CONCAT(e.dict_label) responsibilities, cppc.id
+        from cnas_person_personnel_capacity cppc
+        left join sys_dict_data e on FIND_IN_SET(e.dict_value, cppc.job_responsibilities)
+        where e.dict_type = 'responsibilities_list'
+        GROUP BY cppc.id) ecp on ecp.id = cppc.id
+        <where>
+            <if test="userId != null and userId != ''">
+                and cppc.user_id = #{userId}
+            </if>
+            <if test="departLimsId != null and departLimsId != ''">
+                and FIND_IN_SET(#{departLimsId}, u3.depart_lims_id)
+            </if>
+            <if test="userName != null and userName != ''">
+                and u3.name like concat('%', #{userName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询人员能力接口 -->
+    <select id="selectExportPersonnelCapacity"
+            resultType="com.ruoyi.personnel.dto.PersonPersonnelCapacityExportDto">
+        select cppc.*,
+               cpbi.post_name,
+               u1.name   userName,
+               cpbi.official_academic_redentials,
+               cpbi.major1,
+               cpbi.professional_title,
+               p.place_work,
+               TRIM(',' FROM CONCAT(cpbi.major1, ',', cpbi.major2)) AS major,
+               case when cppc.academic_conform_not = 1 then '☑'
+                    else '□' end academicConformNot1,-- 学历
+               case when cppc.academic_conform_not = 2 then '☑'
+                    else '□' end academicConformNot2,
+               case when cppc.academic_conform_not = 3 then '☑'
+                    else '□' end academicConformNot3,
+               case when cppc.related_years_conform_not = 1 then '☑'
+                    else '□' end relatedYearsConformNot1,-- 相关年限
+               case when cppc.related_years_conform_not = 2 then '☑'
+                    else '□' end relatedYearsConformNot2,
+               case when cppc.related_years_conform_not = 3 then '☑'
+                    else '□' end relatedYearsConformNot3,
+               case when cppc.related_training_conform_not = 1 then '☑'
+                    else '□' end relatedTrainingConformNot1,-- 相关培训
+               case when cppc.related_training_conform_not = 2 then '☑'
+                    else '□' end relatedTrainingConformNot2,
+               case when cppc.related_training_conform_not = 3 then '☑'
+                    else '□' end relatedTrainingConformNot3,
+               case when cppc.relevant_experience_conform_not = 1 then '☑'
+                    else '□' end relevantExperienceConformNot1,-- 相关经验
+               case when cppc.relevant_experience_conform_not = 2 then '☑'
+                    else '□' end relevantExperienceConformNot2,
+               case when cppc.relevant_experience_conform_not = 3 then '☑'
+                    else '□' end relevantExperienceConformNot3,
+               case when cppc.work_license_conform_not = 1 then '☑'
+                    else '□' end workLicenseConformNot1,-- 上岗证
+               case when cppc.work_license_conform_not = 2 then '☑'
+                    else '□' end workLicenseConformNot2,
+               case when cppc.work_license_conform_not = 3 then '☑'
+                    else '□' end workLicenseConformNot3,
+               case when cppc.job_responsibilities_conform_not = 1 then '☑'
+                    else '□' end jobResponsibilitiesConformNot1,-- 岗位职责
+               case when cppc.job_responsibilities_conform_not = 2 then '☑'
+                    else '□' end jobResponsibilitiesConformNot2,
+               case when cppc.job_responsibilities_conform_not = 3 then '☑'
+                    else '□' end jobResponsibilitiesConformNot3,
+               case when cppc.comprehensive_assessment = 'Qualified this position' then '☑'
+                    else '□' end comprehensiveAssessment1,-- 综合评价
+               case when cppc.comprehensive_assessment = 'You can work while training' then '☑'
+                    else '□' end comprehensiveAssessment2,
+               case when cppc.comprehensive_assessment = 'Iconpetent for the position' then '☑'
+                    else '□' end comprehensiveAssessment3,
+               case when find_in_set(1, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities1,
+               case when find_in_set(2, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities2,
+               case when find_in_set(3, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities3,
+               case when find_in_set(4, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities4,
+               case when find_in_set(5, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities5,
+               case when find_in_set(6, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities6,
+               case when find_in_set(7, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities7,
+               case when find_in_set(8, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities8,
+               case when find_in_set(9, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities9,
+               case when find_in_set(10, cppc.job_responsibilities) then '☑'
+                    else '□' end jobResponsibilities10
+        from cnas_person_personnel_capacity cppc
+                 left join user u1 on cppc.user_id = u1.id
+                 left join cnas_person_basic_info cpbi on cpbi.user_id = cppc.user_id
+                 left join (select GROUP_CONCAT(cptr.work_experience) place_work, cptr.user_id
+                            from cnas_person_basic_info_work cptr
+                            GROUP BY cptr.user_id) p on u1.id = p.user_id
+        where cppc.id = #{id}
+    </select>
+</mapper>

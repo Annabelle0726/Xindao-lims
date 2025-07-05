@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ManageDocumentControlledMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.manage.pojo.ManageDocumentControlled">
+        <id column="id" property="id"/>
+        <result column="document_code" property="documentCode"/>
+        <result column="type" property="type"/>
+        <result column="name" property="name"/>
+        <result column="version" property="version"/>
+        <result column="writer" property="writer"/>
+        <result column="submit_date" property="submitDate"/>
+        <result column="instructions" property="instructions"/>
+        <result column="state" property="state"/>
+        <result column="url" property="url"/>
+        <result column="duty_user" property="dutyUser"/>
+        <result column="dutyUserName" property="dutyUserName"/>
+        <result column="create_user" property="createUser"/>
+        <result column="createUserName" property="createUserName"/>
+        <result column="createUserDepartLims" property="createUserDepartLims"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="pageManageDocumentControlled" resultMap="BaseResultMap">
+        select * from (select cmdc.*, u1.name createUserName, u2.name dutyUserName
+        from cnas_manage_document_controlled cmdc
+        left join user u1 on cmdc.create_user = u1.id
+        left join user u2 on cmdc.duty_user = u2.id)A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getManageDocumentControlled" resultMap="BaseResultMap">
+        select cmdc.*, u1.name createUserName, u2.name dutyUserName
+        from cnas_manage_document_controlled cmdc
+                 left join user u1 on cmdc.create_user = u1.id
+                 left join user u2 on cmdc.duty_user = u2.id
+    </select>
+</mapper>

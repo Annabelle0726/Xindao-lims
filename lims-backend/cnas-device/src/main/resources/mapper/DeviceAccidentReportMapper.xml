@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceAccidentReportMapper">
+
+    <!-- 设备事故报告列表 -->
+    <select id="pageDeviceAccidentReport" resultType="com.ruoyi.device.pojo.DeviceAccidentReport">
+        select * from (
+        select *
+        from device_accident_report
+        order by create_time desc
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectDeviceAccidentReportById" resultType="com.ruoyi.device.dto.DeviceAccidentReportDto">
+        select
+            d.*,
+            date_format(d.accident_date,'%Y-%m-%d') accidentDateStr, -- 时间
+            date_format(d.report_date,'%Y-%m-%d') reportDateStr, -- 报告人填写时间
+            date_format(d.assessor_date,'%Y-%m-%d') assessorDateStr, -- 评估人填写时间
+            date_format(d.department_head_date,'%Y-%m-%d') departmentHeadDateStr, -- 部门负责人填写时间
+            date_format(d.technical_director_date,'%Y-%m-%d') technicalDirectorDateStr, -- 技术负责人填写时间
+            date_format(d.director_head_date,'%Y-%m-%d') directorHeadDateStr -- 主任填写时间
+        from device_accident_report d
+        where d.accident_report_id = #{accidentReportId}
+    </select>
+
+</mapper>

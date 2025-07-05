@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.process.mapper.ProcessDealMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.process.pojo.ProcessDeal">
+        <id column="id" property="id"/>
+        <result column="sample_name" property="sampleName"/>
+        <result column="sample_code" property="sampleCode"/>
+        <result column="sample_supplier" property="sampleSupplier"/>
+        <result column="num" property="num"/>
+        <result column="deal_method" property="dealMethod"/>
+        <result column="deal_time" property="dealTime"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="totaldeal_id" property="totaldealId"/>
+    </resultMap>
+    <select id="pageProcessDeal" resultType="com.ruoyi.process.pojo.ProcessDeal">
+        select *
+        from (select * from cnas_process_deal) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="selectDeal" resultType="com.ruoyi.process.dto.ProcessDealDto">
+        select ROW_NUMBER() OVER (ORDER BY id) AS indexs,
+               id,
+               sample_name,
+               sample_code,
+               sample_supplier,
+               num,
+               deal_method,
+               DATE_FORMAT(deal_time, '%Y-%m-%d') dealTimeStr
+        from cnas_process_deal
+        where totaldeal_id = #{id}
+    </select>
+</mapper>

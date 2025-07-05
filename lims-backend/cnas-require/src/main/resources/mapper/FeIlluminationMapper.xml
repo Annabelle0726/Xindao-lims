@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.FeIlluminationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.FeIllumination">
+        <id column="intensity_illumination_id" property="intensityIlluminationId" />
+        <result column="device_id" property="deviceId" />
+        <result column="conclusion" property="conclusion" />
+        <result column="tester_id" property="testerId" />
+        <result column="checker_id" property="checkerId" />
+        <result column="test_date" property="testDate" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <select id="getFeLightningProtection" resultType="com.ruoyi.require.dto.FeIlluminationDto">
+        SELECT cdi.*, u1.name checker_user, u2.name tester_user, dv.device_name, dv.management_number
+        FROM cnas_fe_illumination cdi
+                 left join device dv on dv.id = cdi.device_id
+                 left join user u1 on u1.id = cdi.checker_id
+                 left join user u2 on u2.id = cdi.tester_id
+    </select>
+
+    <!-- 查询照明记录 -->
+    <select id="selectFeIllumination" resultType="com.ruoyi.require.dto.FeIlluminationExportDto">
+        SELECT cdi.*,
+               dv.device_name,
+               dv.management_number,
+               DATE_FORMAT(d.calibration_date, '%Y-%m-%d') calibrationDateString,
+               DATE_FORMAT(d.next_calibration_date, '%Y-%m-%d') nextCalibrationDateString
+        FROM cnas_fe_illumination cdi
+                 left join device dv on dv.id = cdi.device_id
+                 LEFT JOIN (SELECT d.id,
+                                   dmr.calibration_date,
+                                   dmr.next_calibration_date
+                            FROM device d
+                                     LEFT JOIN device_metric_record dmr ON dmr.device_id = d.id
+                                AND dmr.type = 'calibrate'
+                            GROUP BY d.id
+                            HAVING max(dmr.id)) d ON d.id = cdi.device_id
+                 left join user u1 on u1.id = cdi.checker_id
+                 left join user u2 on u2.id = cdi.tester_id
+        where cdi.intensity_illumination_id = #{intensityIlluminationId}
+    </select>
+</mapper>

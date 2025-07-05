@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.basic.mapper.IfsInventoryQuantityMapper">
+
+    <select id="printLabel" resultType="com.ruoyi.basic.dto.IfsInventoryQuantityDto">
+        SELECT io.sample sample_name,
+        iiq.supplier_name,
+        io.part_detail part_desc,
+        io.send_time,
+        io.prepare_user,
+        io.entrust_code,
+        iiq.qty_arrived,
+        iiq.buy_unit_meas,
+        CASE
+        WHEN pp.color IS NOT NULL
+        THEN pp.color
+        ELSE sto.color
+        END   color,
+        case
+        when iiq.state = 2 then '2'
+        when iiq.state = 1 then case
+        when ROUND((select count(*)
+        from ins_product ip
+        where state = 1
+        and ins_result is not null
+        and ip.ins_sample_id in (select id
+        from ins_sample
+        where ins_sample.ins_order_id = io.id)) /
+        (select count(*)
+        from ins_product ip2
+        where state = 1
+        and ip2.ins_sample_id in
+        (select id from ins_sample where ins_sample.ins_order_id = io.id)) *
+        100, 2) != 100 then '0'
+        else '1' end
+        end   labelStatus,
+        JSON_OBJECT(
+        'sample_ame', io.sample,
+        'supplier_name', iiq.supplier_name,
+        'part_desc', iiq.part_desc,
+        'entrust_code', io.entrust_code
+        )         labelBarCode
+        FROM ifs_inventory_quantity iiq
+        LEFT JOIN  ins_order io on io.id = (SELECT io2.id
+        FROM ins_order io2
+        WHERE io2.ifs_inventory_id = iiq.id
+        and io2.state != -1
+        order by io2.send_time desc
+        limit 1) COLLATE utf8mb4_general_ci
+        LEFT JOIN product_part pp ON pp.part_no = iiq.part_no COLLATE utf8mb4_general_ci
+        LEFT JOIN structure_test_object_part sto ON sto.part_no = iiq.part_no COLLATE utf8mb4_general_ci
+        WHERE iiq.id in
+        <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+    <select id="selectReportCountById" resultType="java.lang.Integer">
+        select count(*)
+        from ifs_inventory_quantity iiq
+                 left join ins_order io on io.ifs_inventory_id = iiq.id and io.state
+                 left join ins_report ir on ir.ins_order_id = io.id
+        where iiq.id = #{ifsInventoryId}
+          and ir.id is not null
+    </select>
+    <select id="selectIsFirst" resultType="java.lang.Integer">
+        select count(*)
+        from ifs_inventory_quantity iiq
+                 LEFT JOIN ins_order io1 on io1.ifs_inventory_id = iiq.id
+            and io1.state != -1
+        where io1.part_detail = #{partDetail}
+          and iiq.supplier_name = #{supplierName}
+          and iiq.receiver_date between #{startOfNextQuarter} and #{endOfQuarter}
+    </select>
+</mapper>

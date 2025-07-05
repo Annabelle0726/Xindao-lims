@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceMaintenancePlanDetailsMapper">
+
+
+    <select id="deviceInspectionRecordDetailsList"
+            resultType="com.ruoyi.device.dto.DeviceMaintenancePlanDetailsDto">
+        select
+            dmpd.*,
+            d.device_name,
+            d.management_number device_number,
+            d.specification_model,
+            d.management_number,
+            d.storage_point
+        from device_maintenance_plan_details dmpd
+        left join device d on dmpd.device_id = d.id
+        where dmpd.maintenance_plan_id = #{maintenancePlanId}
+    </select>
+
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.basic.mapper.StructureItemParameterMapper">
+
+    <select id="selectItemParameterList" resultType="com.ruoyi.basic.pojo.StructureItemParameter">
+        select * from (select A.id,
+        inspection_item,
+        inspection_item_en,
+        inspection_item_subclass,
+        inspection_item_subclass_en,
+        laboratory,
+        unit,
+        price,
+        man_hour,
+        man_hour_group,
+        inspection_item_type,
+        checkout_number,
+        section,
+        A.create_user,
+        A.update_user,
+        A.create_time,
+        A.update_time,
+        method,
+        man_day,
+        bsm,
+        sample,
+        inspection_value_type,
+        dic,
+        template_id,
+        son_laboratory,
+        ask,
+        ask_tell,
+        inspection_item_class,
+        inspection_item_class_en,
+        code,
+        radius_list,
+        rates,
+        device_ids,
+        spot_check_type
+        from (select *,
+        CASE
+        WHEN INSTR(sample, ',') > 0 THEN
+        SUBSTRING_INDEX(SUBSTRING_INDEX(sample, '","', 1), '"', -1)
+        when sample = '[""]' then null
+        when sample = '[]' then null
+        ELSE
+        TRIM(BOTH '["]' FROM SUBSTRING_INDEX(REPLACE(sample, '[["', ''), '"]]', 1))
+        END AS samples
+        from structure_item_parameter) A
+        left join structure_test_object sto on samples = specimen_name
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>)B
+        order by CASE
+        WHEN code IS NULL THEN 1
+        ELSE 0
+        END,
+        CAST(code AS UNSIGNED),
+        case when man_hour_group is NULL then 1
+        when man_hour_group ='' then 1 else 0 end,
+        CASE
+        WHEN man_hour_group REGEXP '^[0-9]' THEN CAST(man_hour_group AS UNSIGNED) -- 如果以数字开头，则按照数字大小排序
+        WHEN man_hour_group REGEXP '[0-9]+' THEN CAST(SUBSTRING(man_hour_group, 2)AS UNSIGNED) END -- 提取字母后面的数字部分
+        ,id asc
+    </select>
+
+    <resultMap id="getInsProductions" type="map">
+        <result property="name" column="sample"/>
+        <collection property="children" resultMap="itemClass" javaType="List"/>
+    </resultMap>
+    <resultMap id="itemClass" type="map">
+        <result property="name" column="item_class"/>
+        <collection property="children" resultMap="item" javaType="List"/>
+    </resultMap>
+    <resultMap id="item" type="map">
+        <result property="name" column="inspection_item"/>
+        <collection property="children" resultMap="itemSubClass" javaType="List"/>
+    </resultMap>
+    <resultMap id="itemSubClass" type="map">
+        <id property="id" column="id"/>
+        <result property="name" column="subclass"/>
+    </resultMap>
+    <select id="getInsProduction" resultMap="getInsProductions">
+        select distinct id,
+                        CASE
+                            WHEN INSTR(sample, ',') > 0 THEN
+                                SUBSTRING_INDEX(SUBSTRING_INDEX(sample, '","', 1), '"', -1)
+                            when sample = '[""]' then '*'
+                            ELSE
+                                TRIM(BOTH '["]' FROM SUBSTRING_INDEX(REPLACE(sample, '[["', ''), '"]]', 1))
+                            END
+                                                              as sample,
+                        inspection_item,
+                        case
+                            when inspection_item_subclass is null or inspection_item_subclass = '' then inspection_item
+                            else inspection_item_subclass end as subclass,
+                        case
+                            when inspection_item_class is null or inspection_item_class = '' then inspection_item
+                            else inspection_item_class end as item_class
+        from structure_item_parameter
+    </select>
+    <select id="getItemTree" resultMap="itemDto">
+        select sto.id sId, sto.specimen_name sName, p.id pId, p.name pName
+        from structure_test_object sto
+                 left join product p on p.object_id = sto.id
+    </select>
+    <select id="selectDeviceIdsByNumber" resultType="java.lang.Integer">
+        select id from device
+        where management_number in
+        <foreach item="item" collection="managementNumberList" open="(" separator="),(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <resultMap id="itemDto" type="com.ruoyi.basic.dto.TestItemDto">
+        <result column="sId" property="id"/>
+        <result column="sName" property="name"/>
+        <collection property="children" resultMap="productDto"/>
+    </resultMap>
+    <resultMap id="productDto" type="com.ruoyi.basic.dto.ProductDto">
+        <result column="pId" property="id"/>
+        <result column="pName" property="name"/>
+    </resultMap>
+</mapper>

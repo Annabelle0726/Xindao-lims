@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.performance.mapper.AuxiliaryWorkingHoursDayMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.performance.pojo.AuxiliaryWorkingHoursDay">
+        <id column="id" property="id"/>
+        <result column="nameUser" property="nameUser"/>
+        <result column="number" property="number"/>
+        <result column="auxiliary_project" property="auxiliaryProject"/>
+        <result column="approved_working_hour" property="approvedWorkingHour"/>
+        <result column="amount" property="amount"/>
+        <result column="nonproductive_time" property="nonproductiveTime"/>
+        <result column="remarks" property="remarks"/>
+        <result column="reviewer" property="reviewer"/>
+        <result column="reviewer_number" property="reviewerNumber"/>
+        <result column="reviewer_nonproductive_time" property="reviewerNonproductiveTime"/>
+        <result column="reviewer_remark" property="reviewerRemark"/>
+        <result column="year" property="year"/>
+        <result column="shift" property="shift"/>
+        <result column="week" property="week"/>
+        <result column="week_day" property="weekDay"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="state" property="state"/>
+    </resultMap>
+
+    <sql id="selectAuxiliaryWorkingHours">
+        select A.*
+        from (
+        select awhd.*,name
+        FROM auxiliary_working_hours_day awhd
+        left join user on name_user=user.id
+        WHERE 1=1
+        <if test="ids !=null and ids.size() > 0">
+            and name_user in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        ) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by create_time desc
+    </sql>
+
+    <select id="selectAuxiliaryWorkingHoursDay" resultType="com.ruoyi.performance.dto.AuxiliaryWorkingHoursDayDto">
+        <include refid="selectAuxiliaryWorkingHours"/>
+    </select>
+    <select id="selectDataByUser" resultType="com.ruoyi.performance.dto.AuxiliaryWorkingHoursDayDto">
+        select awhd.*,name
+        FROM auxiliary_working_hours_day awhd
+        left join user on name_user=user.id
+        WHERE 1=1
+        <if test="ids !=null and ids.size() > 0">
+            and name_user in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectListByIds" resultType="com.ruoyi.performance.pojo.AuxiliaryWorkingHoursDay">
+        select * from auxiliary_working_hours_day
+        where state='已批准'
+        <if test="ids !=null and ids != ''">
+            and name_user in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+    </select>
+    <select id="totalHours" resultType="java.util.Map">
+        select A.name,
+        A.month,
+        FORMAT(SUM(manHour), 4)as manHours
+        from(
+        select user.name,
+        case when reviewer_nonproductive_time is null then nonproductive_time
+        else reviewer_nonproductive_time end as manHour,
+        date_time as month
+        from auxiliary_working_hours_day awhd
+        left join user on user.id=awhd.name_user
+        left join department_lims dl on depart_lims_id=dl.id
+        where date_time LIKE CONCAT('%', #{month}, '%')
+        and awhd.state='已批准'
+         <if test="ids !=null and ids.size() > 0">
+             and name_user in
+             <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                 #{val}
+             </foreach>
+         </if>
+        order by month,user.name
+        )A
+        group by A.name,A.month
+        order by A.name,A.month
+    </select>
+
+    <select id="selectLists" resultMap="BaseResultMap">
+        select * from(select * from auxiliary_working_hours_day
+        WHERE 1=1
+        <if test="ids !=null and ids.size() > 0">
+            and name_user in
+            <foreach collection="ids" index="index" open="(" separator="," close=")" item="val">
+                #{val}
+            </foreach>
+        </if>
+        ) A
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectAuxiliaryWorkingHoursDayList" resultType="com.ruoyi.performance.dto.AuxiliaryWorkingHoursDayDto">
+        <include refid="selectAuxiliaryWorkingHours"/>
+    </select>
+</mapper>

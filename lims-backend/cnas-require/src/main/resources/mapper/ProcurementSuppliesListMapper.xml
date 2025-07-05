@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.require.mapper.ProcurementSuppliesListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ruoyi.require.pojo.ProcurementSuppliesList">
+        <id column="id" property="id" />
+        <result column="contents_id" property="contentsId" />
+        <result column="consumables_type" property="consumablesType" />
+        <result column="item_number" property="itemNumber" />
+        <result column="consumables_name" property="consumablesName" />
+        <result column="specifications" property="specifications" />
+        <result column="unit" property="unit" />
+        <result column="reference_price" property="referencePrice" />
+        <result column="content_id" property="contentId" />
+        <result column="person_in_charge" property="personInCharge" />
+        <result column="upper_limit" property="upperLimit" />
+        <result column="lower_limit" property="lowerLimit" />
+        <result column="supplier" property="supplier" />
+        <result column="consumables_icon" property="consumablesIcon" />
+        <result column="attachment" property="attachment" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="current_amount" property="currentAmount" />
+    </resultMap>
+
+    <select id="selectProcurementSuppliesList" resultMap="BaseResultMap">
+        select * from procurement_supplies_list
+        <where>
+            <if test="ew.contentId != null and ew.contentId != ''">
+                and content_id = ${ew.contentId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectProcurementSuppliesListForUpdate" resultMap="BaseResultMap">
+        select * from procurement_supplies_list where id = ${id} for update
+    </select>
+
+    <select id="selectProcurementSuppliesListAll" resultMap="BaseResultMap">
+        select
+            contents_id,item_number, consumables_type, consumables_name, specifications, supplier, upper_limit,
+        lower_limit, unit, remark, person_in_charge, update_user, update_time
+        from procurement_supplies_list
+        <where>
+            <if test="ew.contentId != null and ew.contentId != ''">
+                and content_id = ${ew.contentId}
+            </if>
+        </where>
+    </select>
+    <select id="selectProcurementSuppliesListByContentsId"
+            resultType="com.ruoyi.require.pojo.ProcurementSuppliesList">
+        select id,
+               item_number,
+               consumables_type,
+               consumables_name,
+               specifications,
+               lower_limit,
+               unit,
+               remark
+        from procurement_supplies_list
+        where contents_id = ${id}
+           or contents_id in
+              (SELECT id
+               FROM `procurement_supplies_contents`
+               WHERE id = ${id}
+                  OR parent_id = ${id})
+    </select>
+</mapper>

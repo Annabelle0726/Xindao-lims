@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.inspect.mapper.InsOrderDeviceRecordMapper">
+
+    <!-- 订单id查询设备使用记录 -->
+    <select id="selectDeviceNumber" resultType="com.ruoyi.inspect.dto.InsOrderDeviceRecordDto">
+        select dr.*,
+               d.management_number
+        from device_record dr
+                 left join device d on d.id = dr.device_id
+        where dr.ins_order_id = #{insOrderId}
+    </select>
+
+    <!-- 根据编号查询设备id -->
+    <select id="selectDeviceIdsByNumbers" resultType="java.lang.Integer">
+        select id
+        from device
+        where management_number in
+        <foreach collection="deviceNumbers" index="index" open="(" separator="," close=")" item="val">
+            #{val}
+        </foreach>
+    </select>
+</mapper>

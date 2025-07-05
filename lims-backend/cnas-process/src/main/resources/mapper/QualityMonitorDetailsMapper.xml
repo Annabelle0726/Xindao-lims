@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.process.mapper.QualityMonitorDetailsMapper">
+    <select id="pageQualityMonitorDetail" resultType="com.ruoyi.process.dto.QualityMonitorDetailsDto">
+        select * from (
+        SELECT cqmd.*,
+        CASE
+        WHEN cqmder.is_finish = 1 THEN 3
+        WHEN cqmder.is_finish = 0 THEN 2
+        WHEN cqmder.quality_monitor_details_id IS NOT NULL THEN 1
+        ELSE 0 END details_ratify_status,
+        CASE
+        WHEN cqmd.ratify_status = 1 THEN 3
+        WHEN cqmd.ratify_status = 0 THEN 2
+        WHEN cqmd.finish_report_url IS NOT NULL THEN 1
+        ELSE 0 END report_status,
+        CASE
+        WHEN cqmde.is_finish = 1 THEN 3
+        WHEN cqmde.ratify_user_id IS NOT NULL THEN 2
+        WHEN cqmde.implement_user_id IS NOT NULL and cqmde.details_evaluate_id is not null THEN 1
+        ELSE 0 END evaluate_status
+        FROM cnas_quality_monitor_details cqmd
+        LEFT JOIN cnas_quality_monitor_details_evaluate cqmde
+        ON cqmd.quality_monitor_details_id = cqmde.quality_monitor_details_id
+        LEFT JOIN cnas_quality_monitor_details_ratify cqmder
+        ON cqmder.quality_monitor_details_id = cqmd.quality_monitor_details_id
+        order by cqmd.quality_monitor_details_id
+        ) a
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment}
+        </if>
+        order by quality_monitor_id, monitor_purpose, -- 提取年份
+        CAST(SUBSTRING(planned_time, 1, 4) AS SIGNED) ASC,
+        -- 提取月份
+        CASE
+        WHEN planned_time LIKE '% - %' THEN 1
+        ELSE CAST(SUBSTRING_INDEX(SUBSTRING(planned_time, 6), '月', 1) AS SIGNED)
+        END ASC
+    </select>
+</mapper>
